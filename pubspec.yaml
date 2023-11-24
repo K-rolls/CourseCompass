@@ -9,11 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  material_symbols_icons: ^4.2711.0
+  table_calendar: ^3.0.9
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+  fonts:
+   - family:  CustomIcons
+     fonts:
+      - asset: fonts/CustomIcons.ttf
