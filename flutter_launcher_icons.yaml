@@ -1,0 +1,20 @@
+# flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/MyCourseCompass.png"
+  android: true
+  ios: true
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: "#607D8B"
+  background_color: "#607D8B"
+  web:
+    generate: true
+    image_path: "assets/MyCourseCompass.png"
+    background_color: "#607D8B"
+    theme_color: "#607D8B"
+  windows:
+    generate: true
+    image_path: "assets/MyCourseCompass.png"
+  macos:
+    generate: true
+    image_path: "assets/MyCourseCompass.png"

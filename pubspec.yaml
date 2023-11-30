@@ -1,14 +1,16 @@
 name: course_compass
 description: A new Flutter project.
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.1.4 <4.0.0'
+  sdk: ">=3.1.4 <4.0.0"
 
 dependencies:
+  dynamic_color: ^1.6.8
   flutter:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
   material_symbols_icons: ^4.2711.0
   table_calendar: ^3.0.9
 
@@ -20,6 +22,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   fonts:
-   - family:  CustomIcons
-     fonts:
-      - asset: fonts/CustomIcons.ttf
+    - family: CustomIcons
+      fonts:
+        - asset: fonts/CustomIcons.ttf
