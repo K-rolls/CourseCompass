@@ -1,9 +1,14 @@
-import '../../custom_icons.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import "package:flutter/material.dart";
 
+import '../home.dart';
+import '../profile.dart';
+import '../../custom_icons.dart';
+
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
+
+  static const int _transitionTime = 250;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -21,7 +26,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: Theme.of(context).colorScheme.secondary,
         ),
         onPressed: () {
-          return Scaffold.of(context).openDrawer();
+          Scaffold.of(context).openDrawer();
         },
       ),
       flexibleSpace: Container(
@@ -35,7 +40,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             color: Theme.of(context).colorScheme.secondary,
           ),
           onPressed: () {
-            Navigator.of(context).pushNamed('/home');
+            Navigator.pushReplacementNamed(
+              context,
+              '/home',
+              arguments: PageRouteBuilder(
+                transitionDuration:
+                    const Duration(milliseconds: _transitionTime),
+                pageBuilder: (_, __, ___) => const HomeView(),
+                transitionsBuilder: (_, animation, __, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+              ),
+            );
           },
         ),
       ),
@@ -43,10 +62,27 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           tooltip: "Go to profile page",
           iconSize: 30,
-          icon: Icon(Symbols.account_circle,
-              weight: 470, color: Theme.of(context).colorScheme.secondary),
+          icon: Icon(
+            Symbols.account_circle,
+            weight: 470,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
           onPressed: () {
-            Navigator.of(context).pushNamed('/profile');
+            Navigator.pushReplacementNamed(
+              context,
+              '/profile',
+              arguments: PageRouteBuilder(
+                transitionDuration:
+                    const Duration(milliseconds: _transitionTime),
+                pageBuilder: (_, __, ___) => const ProfileView(),
+                transitionsBuilder: (_, animation, __, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+              ),
+            );
           },
         ),
       ],

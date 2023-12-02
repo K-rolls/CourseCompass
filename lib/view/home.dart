@@ -1,7 +1,7 @@
-import 'package:course_compass/view/calendar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'styles/calendar_style.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
 
@@ -30,11 +30,16 @@ class _HomeViewState extends State<HomeView> {
                   Column(
                     children: [
                       for (int i = 0; i < n; i++)
-                        const Padding(
-                          padding: EdgeInsets.only(
+                        Padding(
+                          padding: const EdgeInsets.only(
                               bottom: 8.0, left: 8.0, right: 8.0),
                           child: Card(
-                            child: ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            color:
+                                Theme.of(context).colorScheme.onInverseSurface,
+                            child: const ListTile(
                               leading: Icon(Icons.compass_calibration_sharp),
                               title: Text('Due Date'),
                               subtitle: Text('Course Name'),
@@ -100,8 +105,8 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   const Divider(
                     thickness: 2,
-                    indent: 20.0,
-                    endIndent: 20.0,
+                    indent: 15.0,
+                    endIndent: 15.0,
                   ),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
