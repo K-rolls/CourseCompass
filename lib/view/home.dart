@@ -32,7 +32,10 @@ class _HomeViewState extends State<HomeView> {
                       for (int i = 0; i < n; i++)
                         Padding(
                           padding: const EdgeInsets.only(
-                              bottom: 8.0, left: 8.0, right: 8.0),
+                            bottom: 8.0,
+                            left: 8.0,
+                            right: 8.0,
+                          ),
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
@@ -47,7 +50,7 @@ class _HomeViewState extends State<HomeView> {
                           ),
                         ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -129,7 +132,10 @@ class _HomeViewState extends State<HomeView> {
                       for (int i = 0; i < n; i++)
                         const Padding(
                           padding: EdgeInsets.only(
-                              bottom: 8.0, left: 8.0, right: 8.0),
+                            bottom: 8.0,
+                            left: 8.0,
+                            right: 8.0,
+                          ),
                           child: Card(
                             child: ListTile(
                               leading: Icon(Icons.compass_calibration_sharp),
@@ -139,9 +145,9 @@ class _HomeViewState extends State<HomeView> {
                           ),
                         ),
                     ],
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
