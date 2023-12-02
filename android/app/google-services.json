@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "725054805811",
+    "project_id": "course-compass",
+    "storage_bucket": "course-compass.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725054805811:android:472340513b9d1a4e78d046",
+        "android_client_info": {
+          "package_name": "com.example.course_compass"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "725054805811-9pbhgi3dnqhrhc2tqsq1vdt5iqbuhrhc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEdJJf85UQA0xO-9hGHEdesatpWIyY-j0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "725054805811-9pbhgi3dnqhrhc2tqsq1vdt5iqbuhrhc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
