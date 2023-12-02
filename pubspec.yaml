@@ -7,9 +7,12 @@ environment:
   sdk: ">=3.1.4 <4.0.0"
 
 dependencies:
+  cloud_firestore: ^4.13.3
   dynamic_color: ^1.6.8
   file_picker: ^6.1.1
+  firebase_auth: ^4.15.0
   firebase_core: ^2.24.0
+  firebase_storage: ^11.5.3
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.13.1

@@ -118,7 +118,7 @@ class _HomeViewState extends State<HomeView> {
                       Padding(
                         padding: EdgeInsets.only(left: 20.0),
                         child: Text(
-                          'Daily Digest:',
+                          'Due Date Digest:',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
