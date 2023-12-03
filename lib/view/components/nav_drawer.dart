@@ -2,6 +2,7 @@ import '../../custom_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'nav_course.dart';
 
 class NavDrawer extends StatelessWidget {
@@ -30,7 +31,7 @@ class NavDrawer extends StatelessWidget {
         namedRoute = '/course_archive';
         break;
       default:
-        namedRoute = '/home';
+        namedRoute = '/';
     }
     // print(namedRoute);
     return [namedRoute];
@@ -66,6 +67,12 @@ class NavDrawer extends StatelessWidget {
       onDestinationSelected: (index) {
         selectedIndex = index;
         String namedRoute = _intToRoute(index)[0];
+
+        if (namedRoute == '/') {
+          () async {
+            await FirebaseAuth.instance.signOut();
+          }();
+        }
         Navigator.of(context).pushNamed(namedRoute);
       },
       tilePadding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -125,15 +132,6 @@ class NavDrawer extends StatelessWidget {
           ),
           label: Text('Profile'),
         ),
-        const NavigationDrawerDestination(
-          icon: Icon(
-            Symbols.archive_rounded,
-          ),
-          selectedIcon: Icon(
-            Icons.archive,
-          ),
-          label: Text('Course Archive'),
-        ),
         const Divider(),
         // TODO: Update with streambuilder
         const NavCourse(
@@ -186,15 +184,6 @@ class NavDrawer extends StatelessWidget {
           ),
         ),
         const Divider(),
-        const NavigationDrawerDestination(
-          icon: Icon(
-            Symbols.settings_rounded,
-          ),
-          selectedIcon: Icon(
-            Icons.settings,
-          ),
-          label: Text('Settings'),
-        ),
         const NavigationDrawerDestination(
           icon: Icon(
             Symbols.logout_rounded,

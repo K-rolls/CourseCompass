@@ -13,7 +13,6 @@ class CustomTextStyle {
   static TextStyle get titleStyle {
     return const TextStyle(
       fontSize: mainFontSize,
-      fontWeight: FontWeight.bold,
     );
   }
 

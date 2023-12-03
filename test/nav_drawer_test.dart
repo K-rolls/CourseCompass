@@ -65,30 +65,5 @@ void main() {
       // Verify that the correct page is navigated to
       expect(find.byKey(const Key('/profile')), findsOneWidget);
     });
-
-    testWidgets('Should navigate from /home to /course_archive',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          routes: {
-            '/home': (context) => const Scaffold(key: Key('/home')),
-            '/grades': (context) => const Scaffold(key: Key('/grades')),
-            '/profile': (context) => const Scaffold(key: Key('/profile')),
-            '/course_archive': (context) =>
-                const Scaffold(key: Key('/course_archive')),
-          },
-          home: const Scaffold(
-            body: NavDrawer(),
-          ),
-        ),
-      );
-
-      // Tap on the "Course Archive" option
-      await tester.tap(find.text('Course Archive'));
-      await tester.pumpAndSettle();
-
-      // Verify that the correct page is navigated to
-      expect(find.byKey(const Key('/course_archive')), findsOneWidget);
-    });
   });
 }

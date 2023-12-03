@@ -1,14 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import './firebase_options.dart';
 import './theme.dart';
-import './view/auth_gate.dart';
 import './view/home.dart';
-import './view/course_archive.dart';
 import './view/grades.dart';
 import './view/profile.dart';
-import './view/settings.dart';
+import './view/auth_gate.dart';
+import './firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,9 +37,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const AuthGateView(),
         '/home': (context) => const HomeView(),
         '/grades': (context) => const GradesView(),
-        '/settings': (context) => const SettingsView(),
         '/profile': (context) => const ProfileView(),
-        '/course_archive': (context) => const CourseArchiveView(),
         '/auth_gate': (context) => const AuthGateView(),
       },
     );
