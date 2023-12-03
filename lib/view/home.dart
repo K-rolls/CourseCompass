@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'styles/calendar_style.dart';
+import './styles/calendar_style.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
 

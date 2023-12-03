@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../styles/card_style.dart';
+import '../course_grades.dart';
+import '../styles/text_style.dart';
 
 class GradesCard extends StatelessWidget {
   final String name;
@@ -37,11 +38,19 @@ class GradesCard extends StatelessWidget {
             ),
             child: InkWell(
               onTap: () {
-                // TODO: Implement onTap functionality
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CourseGradesView(
+                      name: name,
+                      color: color,
+                    ),
+                  ),
+                );
               },
               borderRadius: BorderRadius.circular(6.0),
               child: Padding(
-                padding: CardStyle.defaultPadding,
+                padding: CustomTextStyle.defaultPadding,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -49,7 +58,7 @@ class GradesCard extends StatelessWidget {
                       children: [
                         Text(
                           name,
-                          style: CardStyle.titleStyle,
+                          style: CustomTextStyle.titleStyle,
                         ),
                         const Spacer(),
                         Icon(
@@ -65,12 +74,12 @@ class GradesCard extends StatelessWidget {
                       children: [
                         Text(
                           'Grade',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                         const Spacer(),
                         Text(
                           '80%',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                       ],
                     ),
@@ -78,12 +87,12 @@ class GradesCard extends StatelessWidget {
                       children: [
                         Text(
                           'Needed to get 100%',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                         const Spacer(),
                         Text(
                           '90%',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                       ],
                     ),

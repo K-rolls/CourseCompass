@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CardStyle {
+class CustomTextStyle {
   static EdgeInsets get defaultPadding => const EdgeInsets.only(
         top: 4.0,
         bottom: 4.0,

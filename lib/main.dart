@@ -30,10 +30,10 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomeView(), // replace with auth once done
         '/home': (context) => const HomeView(),
         '/grades': (context) => const GradesView(),
-        '/settings': (context) => const SettingsView(),
         '/profile': (context) => const ProfileView(),
-        '/course_archive': (context) => const CourseArchiveView(),
+        '/settings': (context) => const SettingsView(),
         '/auth_gate': (context) => const AuthGateView(),
+        '/course_archive': (context) => const CourseArchiveView(),
       },
     );
   }

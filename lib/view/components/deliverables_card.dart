@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../styles/card_style.dart';
+
+import '../styles/text_style.dart';
 
 class DeliverablesCard extends StatelessWidget {
   final String name;
@@ -8,9 +9,10 @@ class DeliverablesCard extends StatelessWidget {
   final num weight;
   final DateTime dueDate;
   final TimeOfDay dueTime;
+  final bool padding;
+  final Function? onTap;
 
   /// Creates a card that displays each course deliverable.
-
   //TODO: Update this to take in stream params
   const DeliverablesCard({
     super.key,
@@ -19,16 +21,20 @@ class DeliverablesCard extends StatelessWidget {
     required this.weight,
     required this.dueDate,
     required this.dueTime,
+    required this.onTap,
+    this.padding = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(
-        top: 8.0,
-        left: 16.0,
-        right: 16.0,
-      ),
+      padding: padding
+          ? const EdgeInsets.only(
+              top: 8.0,
+              left: 16.0,
+              right: 16.0,
+            )
+          : null,
       height: MediaQuery.of(context).size.height * 0.26,
       child: Card(
         color: color.withOpacity(0.333),
@@ -39,12 +45,10 @@ class DeliverablesCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(6.0),
             ),
             child: InkWell(
-              onTap: () {
-                // TODO: Implement onTap functionality
-              },
+              onTap: () => onTap!(),
               borderRadius: BorderRadius.circular(6.0),
               child: Padding(
-                padding: CardStyle.defaultPadding,
+                padding: CustomTextStyle.defaultPadding,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -52,7 +56,7 @@ class DeliverablesCard extends StatelessWidget {
                       children: [
                         Text(
                           name,
-                          style: CardStyle.titleStyle,
+                          style: CustomTextStyle.titleStyle,
                         ),
                       ],
                     ),
@@ -61,12 +65,12 @@ class DeliverablesCard extends StatelessWidget {
                       children: [
                         Text(
                           'Weight',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                         const Spacer(),
                         Text(
                           '${weight.toString()}%',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                       ],
                     ),
@@ -74,12 +78,12 @@ class DeliverablesCard extends StatelessWidget {
                       children: [
                         Text(
                           'Due Date',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                         const Spacer(),
                         Text(
                           DateFormat('MMMEd').format(dueDate),
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                       ],
                     ),
@@ -87,12 +91,12 @@ class DeliverablesCard extends StatelessWidget {
                       children: [
                         Text(
                           'Due Time',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                         const Spacer(),
                         Text(
                           '${dueTime.hour}:${dueTime.minute.toString().padLeft(2, '0')}',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                       ],
                     ),

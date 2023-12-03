@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
-import 'package:flutter/material.dart';
 
 class CourseArchiveView extends StatelessWidget {
   const CourseArchiveView({super.key});

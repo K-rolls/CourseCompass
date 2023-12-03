@@ -43,6 +43,29 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
     }
   }
 
+  showBottomModal(
+    String name,
+    double weight,
+    DateTime dueDate,
+    TimeOfDay dueTime,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Column(
+            children: [
+              Text('Name: $name'),
+              Text('Weight: $weight'),
+              Text('Due Date: $dueDate'),
+              Text('Due Time: $dueTime'),
+            ],
+          );
+        },
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog.fullscreen(
@@ -248,6 +271,12 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
                   weight: 10,
                   dueDate: DateTime.now(),
                   dueTime: TimeOfDay.now(),
+                  onTap: showBottomModal(
+                    'A1',
+                    10,
+                    DateTime.now(),
+                    TimeOfDay.now(),
+                  ), //TODO: Fix this
                 ),
                 DeliverablesCard(
                   name: 'A2',
@@ -255,6 +284,12 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
                   weight: 10,
                   dueDate: DateTime.now(),
                   dueTime: TimeOfDay.now(),
+                  onTap: showBottomModal(
+                    'A1',
+                    10,
+                    DateTime.now(),
+                    TimeOfDay.now(),
+                  ), //TODO: Fix this,
                 ),
               ],
             ),

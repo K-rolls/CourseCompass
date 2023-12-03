@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weekday_selector/weekday_selector.dart';
-import '../styles/card_style.dart';
+
+import '../styles/text_style.dart';
 
 class TimeslotCard extends StatelessWidget {
   final String name;
@@ -42,7 +43,7 @@ class TimeslotCard extends StatelessWidget {
               },
               borderRadius: BorderRadius.circular(6.0),
               child: Padding(
-                padding: CardStyle.defaultPadding,
+                padding: CustomTextStyle.defaultPadding,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -50,7 +51,7 @@ class TimeslotCard extends StatelessWidget {
                       children: [
                         Text(
                           name,
-                          style: CardStyle.titleStyle,
+                          style: CustomTextStyle.titleStyle,
                         ),
                       ],
                     ),
@@ -67,12 +68,12 @@ class TimeslotCard extends StatelessWidget {
                       children: [
                         Text(
                           'Start Time',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                         const Spacer(),
                         Text(
                           '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}',
-                          style: CardStyle.bodyStyle,
+                          style: CustomTextStyle.bodyStyle,
                         ),
                       ],
                     ),
