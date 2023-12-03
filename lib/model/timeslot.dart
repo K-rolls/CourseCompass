@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Timeslot {
   final String? id;
   final String name;
-  final List<bool> days;
+  final List<dynamic> days;
   final DateTime time;
 
   Timeslot({
@@ -27,7 +27,7 @@ class Timeslot {
     Map<String, dynamic> map = doc.data() as Map<String, dynamic>;
     return Timeslot(
       id: doc.id,
-      name: map['rating'],
+      name: map['name'],
       days: map['days'],
       time: DateTime.parse(
         map['time'].toDate().toString(),

@@ -1,30 +1,78 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Will be needed
-// import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:flutter/foundation.dart';
-// import 'dart:io';
-
+import '../model/course.dart';
 import '../model/deliverable.dart';
 
 class DeliverableController {
   final user = FirebaseAuth.instance.currentUser;
+  Course course;
 
   final CollectionReference deliverableCollection;
 
-  // Collections need to be changed
-  DeliverableController()
+  DeliverableController({required this.course})
       : deliverableCollection = FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('userEntries');
+            .collection('userCourses')
+            .doc(course.id)
+            .collection('courseDeliverables');
 
-  Future<void> create(Deliverable deliverable) async {}
+  Future<DocumentReference<Object?>> createDeliverable(
+    Deliverable deliverable,
+  ) async {
+    try {
+      return await deliverableCollection.add(
+        deliverable.toMap(),
+      );
+    } catch (e) {
+      throw Exception("createDeliverable - $e");
+    }
+  }
 
-  Future<void> read() async {}
+  Future<List<Deliverable>> listDeliverables() async {
+    try {
+      QuerySnapshot snapshot = await deliverableCollection.get();
+      return snapshot.docs
+          .map(
+            (doc) => Deliverable.fromMap(doc),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('listDeliverables - $e');
+    }
+  }
 
-  Future<void> update(Deliverable deliverable) async {}
+  Future<void> updateDeliverable(Deliverable deliverable) async {
+    try {
+      return await deliverableCollection.doc(deliverable.id).update(
+            deliverable.toMap(),
+          );
+    } catch (e) {
+      throw Exception("updateDeliverable - $e");
+    }
+  }
 
-  Future<void> delete(Deliverable deliverable) async {}
+  Future<void> deleteDeliverable(Deliverable deliverable) async {
+    try {
+      return await deliverableCollection.doc(deliverable.id).delete();
+    } catch (e) {
+      throw Exception("deleteDeliverable - $e");
+    }
+  }
+
+  Future<bool> deliverableExists(Deliverable deliverable) async {
+    try {
+      QuerySnapshot snapshot = await deliverableCollection
+          .where(
+            'id',
+            isEqualTo: deliverable.id,
+          )
+          .get();
+
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      throw Exception("deliverableExists - $e");
+    }
+  }
 }

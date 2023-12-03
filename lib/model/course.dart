@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Course {
   final String? id;
+  final String name;
   final DateTime start;
   final DateTime end;
   final String? questions;
 
   Course({
     this.id,
+    required this.name,
     required this.start,
     required this.end,
     this.questions,
@@ -15,6 +17,7 @@ class Course {
 
   Map<String, dynamic> toMap() {
     return {
+      'name': name,
       'start': Timestamp.fromDate(
         start,
       ),
@@ -29,6 +32,7 @@ class Course {
     Map<String, dynamic> map = doc.data() as Map<String, dynamic>;
     return Course(
       id: doc.id,
+      name: map['name'],
       start: DateTime.parse(
         map['start'].toDate().toString(),
       ),

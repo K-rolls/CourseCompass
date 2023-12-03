@@ -34,7 +34,7 @@ class Deliverable {
     Map<String, dynamic> map = doc.data() as Map<String, dynamic>;
     return Deliverable(
       id: doc.id,
-      name: map['rating'],
+      name: map['name'],
       due: DateTime.parse(
         map['due'].toDate().toString(),
       ), // Convert back to DateTime

@@ -4,7 +4,7 @@ import 'dart:html';
 
 // To use:
 // SaveFileWeb.saveAndLaunchFile(trimmedText, 'output.txt');
-class SaveFileWeb {
+class SaveFileWebController {
   static Future<void> saveAndLaunchFile(
     String text,
     String fileName,

@@ -3,7 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 // Works for mobile and desktop
-class SaveFileMobile {
+class SaveFileMobileController {
   static Future<void> saveAndLaunchFile(String text, String fileName) async {
     //Get external storage directory
     Directory directory = await getApplicationSupportDirectory();
