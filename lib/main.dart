@@ -1,5 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import './firebase_options.dart';
 import './theme.dart';
 import './view/auth_gate.dart';
 import './view/home.dart';
@@ -8,7 +10,14 @@ import './view/grades.dart';
 import './view/profile.dart';
 import './view/settings.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -27,13 +36,13 @@ class MyApp extends StatelessWidget {
       darkTheme: themeHelper.getDarkTheme(),
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomeView(), // replace with auth once done
+        '/': (context) => const AuthGateView(),
         '/home': (context) => const HomeView(),
         '/grades': (context) => const GradesView(),
-        '/profile': (context) => const ProfileView(),
         '/settings': (context) => const SettingsView(),
-        '/auth_gate': (context) => const AuthGateView(),
+        '/profile': (context) => const ProfileView(),
         '/course_archive': (context) => const CourseArchiveView(),
+        '/auth_gate': (context) => const AuthGateView(),
       },
     );
   }
