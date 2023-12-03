@@ -89,6 +89,16 @@ class _CourseConfigScheduleState extends State<CourseConfigSchedule> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: WeekdaySelector(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    selectedColor: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer,
+                                    fillColor:
+                                        Theme.of(context).colorScheme.surface,
+                                    selectedFillColor: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
                                     firstDayOfWeek: 0,
                                     onChanged: (int day) {
                                       setState(() {

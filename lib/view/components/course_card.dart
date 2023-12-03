@@ -41,8 +41,7 @@ class CourseCard extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CourseView(
-                      name: name,
-                      color: color,
+                      courseName: name,
                     ),
                   ),
                 );

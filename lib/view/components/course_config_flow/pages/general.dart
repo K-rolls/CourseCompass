@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
 
-final List<List<dynamic>> _colors = [
-  [Colors.blueGrey, 'Default'],
-  [Colors.indigo, 'Indigo'],
-  [Colors.teal, 'Teal'],
-  [Colors.green, 'Green'],
-  [Colors.amber, 'Amber'],
-  [Colors.deepOrange, 'Deep Orange'],
-  [Colors.pinkAccent, 'Pink'],
-  [const Color(0xFF800020), 'Burgundy Red'],
-];
+import '../../../styles/course_colors.dart';
 
 class CourseConfigGeneral extends StatefulWidget {
   const CourseConfigGeneral({super.key});
@@ -121,12 +112,13 @@ class _CourseConfigGeneralState extends State<CourseConfigGeneral> {
                                           shrinkWrap: true,
                                           crossAxisCount: 4,
                                           children: List.generate(
-                                              _colors.length, (index) {
-                                            final color = _colors[index];
+                                              courseColors.length, (index) {
+                                            final color = courseColors[index];
                                             return IconButton(
                                               icon: Icon(
                                                 Icons.circle,
                                                 color: color[0],
+                                                size: 40,
                                               ),
                                               tooltip: color[1],
                                               onPressed: () {

@@ -1,8 +1,8 @@
 import '../../custom_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import '../course_view.dart';
 import 'nav_course.dart';
 
 class NavDrawer extends StatelessWidget {
@@ -28,7 +28,15 @@ class NavDrawer extends StatelessWidget {
         namedRoute = '/profile';
         break;
       case 3:
-        namedRoute = '/course_archive';
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        namedRoute = 'Course 1';
+        break;
+      case 9:
+        namedRoute = '/add_course';
         break;
       default:
         namedRoute = '/';
@@ -50,7 +58,7 @@ class NavDrawer extends StatelessWidget {
       case '/profile':
         option = 2;
         break;
-      case '/course_archive':
+      case 'course 1':
         option = 3;
         break;
       default:
@@ -68,7 +76,16 @@ class NavDrawer extends StatelessWidget {
         selectedIndex = index;
         String namedRoute = _intToRoute(index)[0];
 
-        if (namedRoute == '/') {
+        if (!namedRoute.startsWith('/')) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseView(
+                courseName: namedRoute,
+              ),
+            ),
+          );
+        } else if (namedRoute == '/') {
           () async {
             await FirebaseAuth.instance.signOut();
           }();
