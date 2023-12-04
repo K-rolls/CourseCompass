@@ -1,213 +1,211 @@
-import '../../custom_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../course_view.dart';
-import 'nav_course.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'dart:async';
 
-class NavDrawer extends StatelessWidget {
+import '../../controller/nav_drawer_controller.dart';
+import '../../controller/course_controller.dart';
+import '../../custom_icons.dart';
+import '../../model/course.dart';
+import '../course_view.dart';
+
+class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
 
-  /// Returns the named route for the selected option.
-  /// TODO: Will need to update this to use a streambuilder
-  /// if int is within range of course pages, determine name of page to push to
-  /// and since CoursePage has input parameters we will need to return a 2 index list
-  ///
-  /// we can check the length of the list to determine if we need to push to a
-  /// defined page or dynamic page later
-  List<String> _intToRoute(int option) {
-    String namedRoute;
-    switch (option) {
-      case 0:
-        namedRoute = '/home';
-        break;
-      case 1:
-        namedRoute = '/grades';
-        break;
-      case 2:
-        namedRoute = '/profile';
-        break;
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-        namedRoute = 'Course 1';
-        break;
-      case 9:
-        namedRoute = '/add_course';
-        break;
-      default:
-        namedRoute = '/';
-    }
-    // print(namedRoute);
-    return [namedRoute];
-  }
+  @override
+  NavDrawerState createState() => NavDrawerState();
+}
 
-  /// Returns the option for the given named route.
-  int _routeToInt(String? namedRoute) {
-    int option;
-    switch (namedRoute) {
-      case '/home':
-        option = 0;
-        break;
-      case '/grades':
-        option = 1;
-        break;
-      case '/profile':
-        option = 2;
-        break;
-      case 'course 1':
-        option = 3;
-        break;
-      default:
-        option = 0;
-    }
-    return option;
+class NavDrawerState extends State<NavDrawer> {
+  int? selectedIndex;
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () async {
+      var currentRoute = ModalRoute.of(context)!.settings.name;
+      if (currentRoute == null) {
+        setState(() {
+          selectedIndex = null;
+        });
+      } else {
+        var selectedIndex = await NavDrawerController.routeToInt(currentRoute);
+        setState(() {
+          this.selectedIndex = selectedIndex;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    int selectedIndex = _routeToInt(ModalRoute.of(context)!.settings.name);
-    return NavigationDrawer(
-      selectedIndex: selectedIndex,
-      onDestinationSelected: (index) {
-        selectedIndex = index;
-        String namedRoute = _intToRoute(index)[0];
-
-        if (!namedRoute.startsWith('/')) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CourseView(
-                courseName: namedRoute,
+    final selectedTileColor = Theme.of(context).colorScheme.secondaryContainer;
+    return Drawer(
+      child: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return ListView(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    top: 8.0,
+                    bottom: 8.0,
+                  ),
+                  leading: Icon(
+                    CustomIcons.mycoursecompass,
+                    size: 40.0,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  title: Text(
+                    'My Course Compass',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 4.0),
+              ListTile(
+                leading: const Icon(
+                  Symbols.home_rounded,
+                ),
+                title: const Text('Home'),
+                selected: selectedIndex == 0,
+                selectedTileColor: selectedTileColor,
+                style: ListTileStyle.list,
+                onTap: () {
+                  super.setState(() {
+                    selectedIndex = 0;
+                  });
+                  Navigator.of(context).pushNamed('/home');
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Symbols.history_edu_rounded,
+                ),
+                selected: selectedIndex == 1,
+                selectedTileColor: selectedTileColor,
+                title: const Text('Grades'),
+                onTap: () {
+                  setState(() {
+                    selectedIndex = 1;
+                  });
+                  Navigator.of(context).pushNamed('/grades');
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Symbols.account_circle_rounded,
+                ),
+                selected: selectedIndex == 2,
+                selectedTileColor: selectedTileColor,
+                title: const Text('Profile'),
+                onTap: () {
+                  super.setState(() {
+                    selectedIndex = 2;
+                  });
+                  Navigator.of(context).pushNamed('/profile');
+                },
+              ),
+              const Divider(),
+              StreamBuilder<List<Course>>(
+                stream: CourseController().listCourses().asStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final courses = snapshot.data!;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: courses.length,
+                      itemBuilder: (context, index) {
+                        final course = courses[index];
+                        return ListTile(
+                          leading: Icon(
+                            Symbols.circle,
+                            color: course.color ?? Colors.red,
+                            size: 25,
+                          ),
+                          selected: selectedIndex == index + 3,
+                          selectedTileColor: selectedTileColor,
+                          title: Text(
+                            course.name,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          onTap: () async {
+                            super.setState(() {
+                              selectedIndex = null;
+                            });
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => CourseView(
+                                  courseName: course.name,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return const SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const Divider(),
+              ListTile(
+                title: const Text(
+                  'Add Course',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
+                leading: const Icon(
+                  Symbols.add,
+                  size: 25.0,
+                ),
+                onTap: () {
+                  // TODO: Implement Add Course screen navigation
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(
+                  Symbols.logout_rounded,
+                ),
+                selected: selectedIndex == 999,
+                selectedTileColor: selectedTileColor,
+                title: const Text('Logout'),
+                onTap: () async {
+                  super.setState(() {
+                    selectedIndex = 999;
+                  });
+                  await FirebaseAuth.instance.signOut().then((value) {
+                    Navigator.of(context).pushNamed('/auth_gate');
+                  });
+                },
+              ),
+            ],
           );
-        } else if (namedRoute == '/') {
-          () async {
-            await FirebaseAuth.instance.signOut();
-          }();
-        }
-        Navigator.of(context).pushNamed(namedRoute);
-      },
-      tilePadding: const EdgeInsets.symmetric(horizontal: 8.0),
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondaryContainer,
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 8.0,
-              bottom: 8.0,
-            ),
-            leading: Icon(
-              CustomIcons.mycoursecompass,
-              size: 40.0,
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
-            ),
-            title: Text(
-              'My Course Compass',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSecondaryContainer,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 4.0),
-        const NavigationDrawerDestination(
-          icon: Icon(
-            Symbols.home_rounded,
-          ),
-          selectedIcon: Icon(
-            Icons.home_filled,
-          ),
-          label: Text('Home'),
-          // onTap: () => Navigator.of(context).pushNamed('/home'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(
-            Symbols.history_edu_rounded,
-          ),
-          selectedIcon: Icon(
-            Icons.history_edu,
-          ),
-          label: Text('Grades'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(
-            Symbols.account_circle_rounded,
-          ),
-          selectedIcon: Icon(
-            Icons.account_circle,
-          ),
-          label: Text('Profile'),
-        ),
-        const Divider(),
-        // TODO: Update with streambuilder
-        const NavCourse(
-          color: Colors.red,
-          name: 'Course 1',
-          icon: Icon(Icons.circle),
-          label: Text(''),
-        ),
-        const NavCourse(
-          color: Colors.blue,
-          name: 'Course 2',
-          icon: Icon(Icons.circle),
-          label: Text(''),
-        ),
-        const NavCourse(
-          color: Colors.green,
-          name: 'Course 3',
-          icon: Icon(Icons.circle),
-          label: Text(''),
-        ),
-        const NavCourse(
-          color: Colors.yellow,
-          name: 'Course 4',
-          icon: Icon(Icons.circle),
-          label: Text(''),
-        ),
-        const NavCourse(
-          color: Colors.orange,
-          name: 'Course 5',
-          icon: Icon(Icons.circle),
-          label: Text(''),
-        ),
-        const NavCourse(
-          color: Colors.purple,
-          name: 'Course 6',
-          icon: Icon(Icons.circle),
-          label: Text(''),
-        ),
-        const Divider(),
-        const NavigationDrawerDestination(
-          label: Text(
-            'Add Course',
-            style: TextStyle(
-              fontSize: 16.0,
-            ),
-          ),
-          icon: Icon(
-            Symbols.add,
-            size: 25.0,
-          ),
-        ),
-        const Divider(),
-        const NavigationDrawerDestination(
-          icon: Icon(
-            Symbols.logout_rounded,
-          ),
-          label: Text('Logout'),
-        ),
-      ],
+        },
+      ),
     );
   }
 }

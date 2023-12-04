@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Course {
   final String? id;
@@ -6,12 +7,14 @@ class Course {
   final DateTime start;
   final DateTime end;
   final String? questions;
+  final Color? color;
 
   Course({
     this.id,
     required this.name,
     required this.start,
     required this.end,
+    this.color,
     this.questions,
   });
 
@@ -25,6 +28,7 @@ class Course {
         end,
       ),
       'questions': questions,
+      'color': color?.value.toString(),
     };
   }
 
@@ -40,6 +44,7 @@ class Course {
         map['end'].toDate().toString(),
       ),
       questions: map['questions'],
+      color: map['color'] != null ? Color(int.parse(map['color'])) : null,
     );
   }
 }

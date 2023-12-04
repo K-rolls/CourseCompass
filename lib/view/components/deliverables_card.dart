@@ -95,7 +95,7 @@ class DeliverablesCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          '${dueTime.hour}:${dueTime.minute.toString().padLeft(2, '0')}',
+                          '${dueTime.hour.toString().padLeft(2, '0')}:${dueTime.minute.toString().padLeft(2, '0')}',
                           style: CustomTextStyle.bodyStyle,
                         ),
                       ],

@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../styles/text_style.dart';
-import 'package:course_compass/view/course_view.dart';
+import '../course_view.dart';
 
 class DueDateCard extends StatelessWidget {
   final String name;

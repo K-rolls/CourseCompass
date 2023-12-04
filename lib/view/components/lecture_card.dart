@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../styles/text_style.dart';
-import 'package:course_compass/view/attendance.dart';
+import '../attendance.dart';
 
 class LectureCard extends StatelessWidget {
   final String name;

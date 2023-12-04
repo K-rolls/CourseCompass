@@ -1,13 +1,20 @@
-import 'package:course_compass/view/styles/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../controller/course_controller.dart';
+import '../controller/deliverable_controller.dart';
+import '../controller/timeslot_controller.dart';
+import '../model/course.dart';
+import '../model/deliverable.dart';
+import '../model/timeslot.dart';
+
 import './components/app_bar.dart';
-import './components/nav_drawer.dart';
 import './components/deliverables_card.dart';
+import './components/nav_drawer.dart';
 import './components/timeslot_card.dart';
 import './styles/course_colors.dart';
+import './styles/text_style.dart';
 
 class CourseView extends StatefulWidget {
   final String courseName;
@@ -21,37 +28,105 @@ class CourseView extends StatefulWidget {
 class CourseViewState extends State<CourseView> {
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
+  late final DateTime _startDate;
+  late final DateTime _endDate;
+
   final TextEditingController _weightController = TextEditingController();
-  String? weightErrorText;
-  late String questions = '';
-  late Color color = Colors.blueGrey;
+  String? _weightErrorText;
+  late String _questions;
+  late Color _color = Colors.blueGrey;
+  final CourseController _courseController = CourseController();
+  late final DeliverableController _deliverableController;
+  late List<Deliverable> _deliverables = [];
+  late final TimeslotController _timeslotController;
+  late List<Timeslot> _timeslots = [];
+  late bool _showDeliverables;
+  late final Course course;
+  bool loaded = false;
 
   @override
   void initState() {
     super.initState();
+    _showDeliverables = true;
     _selectedDate = DateTime.now();
     _selectedTime = const TimeOfDay(hour: 23, minute: 59);
-    _weightController.addListener(() {
-      setState(() {
-        weightErrorText = _validateWeight();
+    _weightController.addListener(_updateWeightErrorText);
+    Future.delayed(Duration.zero, () async {
+      await _fetchCourseData().then((_) {
+        super.setState(() {
+          loaded = true;
+        });
       });
     });
-    questions = 'Question 1\nQuestion 2\nQuestion 3\nQuestion 4\nQuestion 5';
-    color = Colors.blueGrey;
+  }
+
+  void _updateWeightErrorText() {
+    setState(() {
+      _weightErrorText = _validateWeight();
+    });
+  }
+
+  Future<void> _fetchCourseData() async {
+    course =
+        await _courseController.getCourseByName(courseName: widget.courseName);
+    super.setState(() {
+      _questions = course.questions ?? '';
+      _color = course.color ?? Colors.blueGrey;
+      _endDate = course.end;
+      _startDate = course.start;
+      _deliverableController = DeliverableController(course: course);
+      _timeslotController = TimeslotController(course: course);
+    });
+    var deliverablesWaited = await _deliverableController.listDeliverables();
+    var timeslotsWaited = await _timeslotController.listTimeslots();
+    setState(() {
+      _deliverables = deliverablesWaited;
+      _timeslots = timeslotsWaited;
+    });
+  }
+
+  @override
+  void dispose() {
+    _weightController.dispose();
+    super.dispose();
+  }
+
+  Future<void> updateColor() async {
+    if (_color != course.color) {
+      var newCourse = Course(
+        id: course.id,
+        color: _color,
+        name: course.name,
+        start: course.start,
+        end: course.end,
+        questions: course.questions,
+      );
+      await _courseController
+          .updateCourse(newCourse)
+          .then(Navigator.of(context).pop);
+    }
+  }
+
+  Future<void> updateQuestions() async {
+    if (_questions != course.questions) {
+      var newCourse = Course(
+        id: course.id,
+        color: course.color,
+        name: course.name,
+        start: course.start,
+        end: course.end,
+        questions: _questions,
+      );
+      await _courseController.updateCourse(newCourse);
+    }
   }
 
   Future<void> _selectDate(BuildContext context, StateSetter setState) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      // TODO: needs to be set to start of course
-      firstDate: DateTime(2000),
-      // TODO: needs to be set to end of course
-      lastDate: DateTime(
-        DateTime.now().year,
-        12,
-        31,
-      ),
+      firstDate: _startDate,
+      lastDate: _endDate,
     );
     if (picked != null) {
       setState(() {
@@ -84,8 +159,6 @@ class CourseViewState extends State<CourseView> {
     }
     return ''; // No validation error
   }
-
-  bool _showDeliverables = true;
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +237,7 @@ class CourseViewState extends State<CourseView> {
                                 ),
                                 labelText: '$weight %',
                                 hintText: 'Enter a value between 0 and 100',
-                                errorText: weightErrorText,
+                                errorText: _weightErrorText,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -239,7 +312,7 @@ class CourseViewState extends State<CourseView> {
                                       Navigator.of(context).pop();
                                     } else {
                                       setState(() {
-                                        weightErrorText = errorText;
+                                        _weightErrorText = errorText;
                                       });
                                     }
                                   },
@@ -262,284 +335,313 @@ class CourseViewState extends State<CourseView> {
         );
       });
     };
-    return Theme(
-      data: Theme.of(context).brightness == Brightness.light
-          ? ThemeData.light(
-              useMaterial3: true,
-            ).copyWith(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: color,
-                brightness: Theme.of(context).brightness,
+    if (!loaded) {
+      return const Scaffold(
+        appBar: CustomAppBar(),
+        drawer: NavDrawer(),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else {
+      return Theme(
+        data: Theme.of(context).brightness == Brightness.light
+            ? ThemeData.light(
+                useMaterial3: true,
+              ).copyWith(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: _color,
+                  brightness: Theme.of(context).brightness,
+                ),
+                bottomSheetTheme: const BottomSheetThemeData(
+                  showDragHandle: true,
+                ),
+              )
+            : ThemeData.dark(
+                useMaterial3: true,
+              ).copyWith(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: _color,
+                  brightness: Theme.of(context).brightness,
+                ),
+                bottomSheetTheme: const BottomSheetThemeData(
+                  showDragHandle: true,
+                ),
               ),
-              bottomSheetTheme: const BottomSheetThemeData(
-                showDragHandle: true,
-              ),
-            )
-          : ThemeData.dark(
-              useMaterial3: true,
-            ).copyWith(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: color,
-                brightness: Theme.of(context).brightness,
-              ),
-              bottomSheetTheme: const BottomSheetThemeData(
-                showDragHandle: true,
-              ),
-            ),
-      child: StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return Scaffold(
-            appBar: const CustomAppBar(),
-            drawer: const NavDrawer(),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          widget.courseName,
-                          style: CustomTextStyle.titleStyle,
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: Icon(
-                            Symbols.circle,
-                            color: color,
+        child: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Scaffold(
+              drawer: const NavDrawer(),
+              appBar: const CustomAppBar(),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            widget.courseName,
+                            style: CustomTextStyle.titleStyle,
                           ),
-                          onPressed: () => showModalBottomSheet(
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (BuildContext context) {
-                              return StatefulBuilder(
-                                builder: (
-                                  BuildContext context,
-                                  StateSetter setState,
-                                ) {
-                                  return SizedBox(
-                                    width: MediaQuery.of(context).size.width,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          GridView.count(
-                                            shrinkWrap: true,
-                                            crossAxisCount: 4,
-                                            children: List.generate(
-                                                courseColors.length, (index) {
-                                              final color = courseColors[index];
-                                              return IconButton(
-                                                icon: Icon(
-                                                  Icons.circle,
-                                                  color: color[0],
-                                                  size: 40,
-                                                ),
-                                                tooltip: color[1],
-                                                onPressed: () {
-                                                  super.setState(() {
-                                                    this.color = color[0];
-                                                  });
-                                                  Navigator.pop(
-                                                    context,
-                                                  ); // Close the bottom sheet
-                                                },
-                                              );
-                                            }),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(
-                      thickness: 2,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Form(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            TextFormField(
-                              maxLines: null, // Allows newlines
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Questions',
-                              ),
-                              initialValue: questions,
-                              onChanged: (value) {
-                                setState(() {
-                                  questions = value;
-                                });
-                              },
+                          const Spacer(),
+                          IconButton(
+                            icon: Icon(
+                              Symbols.circle,
+                              color: _color,
                             ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: SizedBox(
-                                height: buttonFontSize! + 10,
-                                child: TextButton(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .surfaceVariant,
-                                        content: Text(
-                                          'Saving Questions...',
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                          ),
+                            onPressed: () => showModalBottomSheet(
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (BuildContext context) {
+                                return StatefulBuilder(
+                                  builder: (
+                                    BuildContext context,
+                                    StateSetter setState,
+                                  ) {
+                                    return SizedBox(
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            GridView.count(
+                                              shrinkWrap: true,
+                                              crossAxisCount: 4,
+                                              children: List.generate(
+                                                  courseColors.length, (index) {
+                                                final color =
+                                                    courseColors[index];
+                                                return IconButton(
+                                                  icon: Icon(
+                                                    Icons.circle,
+                                                    color: color[0],
+                                                    size: 40,
+                                                  ),
+                                                  tooltip: color[1],
+                                                  onPressed: () async {
+                                                    super.setState(() {
+                                                      _color = color[0];
+                                                    }); // Close the bottom sheet
+                                                    await updateColor();
+                                                  },
+                                                );
+                                              }),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     );
-                                    // TODO: save the questions to firebase
                                   },
-                                  style: const ButtonStyle(
-                                    padding: MaterialStatePropertyAll<
-                                        EdgeInsetsGeometry>(
-                                      EdgeInsets.only(right: -4),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(
+                        thickness: 2,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Form(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextFormField(
+                                maxLines: null, // Allows newlines
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Questions',
+                                ),
+                                initialValue: _questions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _questions = value;
+                                  });
+                                },
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: SizedBox(
+                                  height: buttonFontSize! + 10,
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          duration:
+                                              const Duration(milliseconds: 500),
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceVariant,
+                                          content: Text(
+                                            'Saving Questions...',
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                      await updateQuestions();
+                                    },
+                                    style: const ButtonStyle(
+                                      padding: MaterialStatePropertyAll<
+                                          EdgeInsetsGeometry>(
+                                        EdgeInsets.only(right: -4),
+                                      ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    'Save Questions',
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                      fontSize: buttonFontSize,
+                                    child: Text(
+                                      'Save Questions',
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(
+                                        fontSize: buttonFontSize,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _showDeliverables = true;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: _showDeliverables
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                              backgroundColor: _showDeliverables
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _showDeliverables = true;
-                            });
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: _showDeliverables
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSecondaryContainer,
-                            backgroundColor: _showDeliverables
-                                ? Theme.of(context).colorScheme.primaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
+                            child: const Text('Deliverables'),
                           ),
-                          child: const Text('Deliverables'),
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _showDeliverables = false;
-                            });
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: !_showDeliverables
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSecondaryContainer,
-                            backgroundColor: !_showDeliverables
-                                ? Theme.of(context).colorScheme.primaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                          ),
-                          child: const Text('Time Slots'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    if (_showDeliverables)
-                      Column(
-                        children: List.generate(
-                          10,
-                          (index) => DeliverablesCard(
-                            color: color,
-                            name: 'Assignment $index',
-                            dueDate: DateTime.now(),
-                            weight: 10.0,
-                            dueTime: const TimeOfDay(hour: 23, minute: 59),
-                            padding: false,
-                            onTap: () => showBottomModal(
-                              'Assignment $index',
-                              10,
-                              DateTime.now(),
-                              const TimeOfDay(hour: 23, minute: 59),
-                              context,
+                          const SizedBox(width: 8),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _showDeliverables = false;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: !_showDeliverables
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                              backgroundColor: !_showDeliverables
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
                             ),
+                            child: const Text('Time Slots'),
                           ),
-                        ),
+                        ],
                       ),
-                    if (!_showDeliverables)
+                      const SizedBox(height: 16),
                       Column(
-                        children: List.generate(
-                          3,
-                          (index) => TimeslotCard(
-                            name: "Lecture ${index + 1}",
-                            color: color,
-                            weekDays: index % 2 == 0
-                                ? [
-                                    false,
-                                    true,
-                                    false,
-                                    true,
-                                    false,
-                                    true,
-                                    false,
-                                  ]
-                                : [
-                                    false,
-                                    false,
-                                    true,
-                                    false,
-                                    true,
-                                    false,
-                                    false,
-                                  ],
-                            startTime: const TimeOfDay(hour: 10, minute: 30),
-                            padding: false,
-                          ),
-                        ),
+                        children: [
+                          if (_showDeliverables && _deliverables.isNotEmpty)
+                            Column(
+                              children: _deliverables
+                                  .map(
+                                    (deliverable) => DeliverablesCard(
+                                      color: _color,
+                                      name: deliverable.name,
+                                      dueDate: deliverable.due,
+                                      weight: deliverable.weight,
+                                      dueTime: TimeOfDay.fromDateTime(
+                                        deliverable.due.toLocal(),
+                                      ),
+                                      padding: false,
+                                      onTap: () => showBottomModal(
+                                        deliverable.name,
+                                        deliverable.weight,
+                                        deliverable.due,
+                                        TimeOfDay.fromDateTime(
+                                          deliverable.due.toLocal(),
+                                        ),
+                                        context,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          if (!_showDeliverables && _timeslots.isNotEmpty)
+                            Column(
+                              children: _timeslots
+                                  .map(
+                                    (timeslot) => TimeslotCard(
+                                      name: timeslot.name,
+                                      color: _color,
+                                      weekDays: (timeslot.days).cast<bool>(),
+                                      startTime:
+                                          TimeOfDay.fromDateTime(timeslot.time),
+                                      padding: false,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          if (_showDeliverables && _deliverables.isEmpty)
+                            const Center(
+                              child: Text(
+                                'No deliverables have been added yet.',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          if (!_showDeliverables && _timeslots.isEmpty)
+                            const Center(
+                              child: Text(
+                                'No time slots have been added yet.',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
+          },
+        ),
+      );
+    }
   }
 }

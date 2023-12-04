@@ -34,13 +34,13 @@ class Deliverable {
     Map<String, dynamic> map = doc.data() as Map<String, dynamic>;
     return Deliverable(
       id: doc.id,
-      name: map['name'],
+      name: map['name'].toString(),
       due: DateTime.parse(
         map['due'].toDate().toString(),
       ), // Convert back to DateTime
-      weight: map['weight'],
-      done: map['done'],
-      grade: map['grade'],
+      weight: double.parse(map['weight'].toString()),
+      done: map['done'] as bool?,
+      grade: map['grade'] != null ? map['grade'] as double : null,
     );
   }
 }
