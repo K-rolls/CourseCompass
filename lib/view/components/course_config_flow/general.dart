@@ -204,7 +204,7 @@ class _CourseConfigGeneralState extends State<CourseConfigGeneral> {
                           CourseController courseController =
                               CourseController();
                           course = await courseController.createCourse(course);
-                          await ParseController.addTimeslotsFromPDF(course);
+                          await ParseController.addSyllabusFromPDF(course);
                           // ignore: use_build_context_synchronously
                           Navigator.push(
                             context,

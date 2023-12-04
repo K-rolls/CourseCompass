@@ -54,16 +54,22 @@ class ParseController {
     return trimmedText;
   }
 
-  static Future<void> addTimeslotsFromPDF(Course? course) async {
+  static Future<void> addSyllabusFromPDF(Course? course) async {
     String text = await extractTextFromPDF();
-
-    TimeslotController timeslotController = TimeslotController(course: course);
-    timeslotController.createTimeslot(getLectureTimeslot(text));
-    timeslotController.createTimeslot(getLabTimeslot(text));
-    addDeliverablesFromPDF(course, text);
+    addTimeslotsFromText(course, text);
+    addDeliverablesFromText(course, text);
   }
 
-  static Future<void> addDeliverablesFromPDF(
+  static Future<void> addTimeslotsFromText(
+    Course? course,
+    String syllabusText,
+  ) async {
+    TimeslotController timeslotController = TimeslotController(course: course);
+    timeslotController.createTimeslot(getLectureTimeslot(syllabusText));
+    timeslotController.createTimeslot(getLabTimeslot(syllabusText));
+  }
+
+  static Future<void> addDeliverablesFromText(
     Course? course,
     String syllabusText,
   ) async {
