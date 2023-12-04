@@ -8,10 +8,12 @@ environment:
 
 dependencies:
   cloud_firestore: ^4.13.3
+  cloud_functions: ^4.5.6
   dynamic_color: ^1.6.8
   file_picker: ^6.1.1
   firebase_auth: ^4.15.0
   firebase_core: ^2.24.0
+  firebase_messaging: ^14.7.6
   firebase_storage: ^11.5.3
   firebase_ui_auth: ^1.10.0
   flutter:
@@ -22,6 +24,7 @@ dependencies:
   material_symbols_icons: ^4.2711.0
   open_file: ^3.3.2
   path_provider: ^2.1.1
+  rxdart: ^0.27.7
   syncfusion_flutter_pdf: ^23.2.6
   table_calendar: ^3.0.9
   weekday_selector: ^1.1.0

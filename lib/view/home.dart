@@ -1,6 +1,8 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../controller/notification_controller.dart';
 import './styles/calendar_style.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
@@ -17,6 +19,7 @@ class HomeView extends StatefulWidget {
 bool _showDeliverables = true;
 
 class _HomeViewState extends State<HomeView> {
+  final notificationController = NotificationController();
   late DateTime _selectedDate;
   final int n = 6;
   void _showBottomSheet() {
@@ -129,8 +132,68 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Future<void> setupMessages() async {
+    RemoteMessage? message =
+        await FirebaseMessaging.instance.getInitialMessage();
+    if (message != null) {
+      handleNavigation(message);
+    }
+    FirebaseMessaging.onMessageOpenedApp.listen(handleNavigation);
+  }
+
+  //TODO: Sync up with Cole to do the following:
+  //TODO: Implement adding notifications to firestore when user adds a deliverable or
+  //TODO: Update this to navigate properly
+  void handleNavigation(RemoteMessage message) {
+    if (message.data['type'] == 'timeslot') {
+      Navigator.pushNamed(context, '/grades');
+    } else {
+      Navigator.pushNamed(context, '/home');
+    }
+  }
+
   @override
   void initState() {
+    Future.delayed(
+      Duration.zero,
+      () async {
+        notificationController.addUserToken();
+      },
+    );
+    setupMessages();
+    FirebaseMessaging.onMessage.listen(
+      (event) {
+        if (event.notification == null) return;
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text(
+                event.notification?.title ?? '',
+                style: const TextStyle(fontSize: 25),
+              ),
+              content: SizedBox(
+                width: 200,
+                child: Text(
+                  event.notification?.body ?? '',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text('Dismiss', style: TextStyle(fontSize: 15)),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                  child: const Text('Visit', style: TextStyle(fontSize: 15)),
+                  onPressed: () => handleNavigation(event),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
     super.initState();
     _selectedDate = DateTime.now();
   }

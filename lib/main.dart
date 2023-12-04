@@ -2,14 +2,15 @@ import 'package:course_compass/view/components/course_config_flow/general.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'firebase_options.dart';
+
 import './theme.dart';
 import './view/home.dart';
 import './view/grades.dart';
 import './view/profile.dart';
 import './view/auth_gate.dart';
-import './firebase_options.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -21,7 +22,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({
+    super.key,
+  });
 
   static const Color color = Colors.blueGrey;
 
