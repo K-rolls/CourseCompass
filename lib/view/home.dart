@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'styles/calendar_style.dart';
+import './styles/calendar_style.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
+import './components/due_date_card.dart';
+import './components/lecture_card.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -12,49 +14,116 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
+bool _showDeliverables = true;
+
 class _HomeViewState extends State<HomeView> {
   late DateTime _selectedDate;
-  final int n = 10;
+  final int n = 6;
   void _showBottomSheet() {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext builder) {
-        return SizedBox(
-          height: MediaQuery.of(context).copyWith().size.height * 0.45,
-          child: RawScrollbar(
-            radius: const Radius.circular(8.0),
-            thumbColor: Theme.of(context).colorScheme.background,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Column(
+        return StatefulBuilder(
+          builder: (
+            BuildContext context,
+            StateSetter setState,
+          ) {
+            return SizedBox(
+              height: MediaQuery.of(context).copyWith().size.height * 0.65,
+              child: RawScrollbar(
+                radius: const Radius.circular(8.0),
+                thumbColor: Theme.of(context).colorScheme.background,
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      for (int i = 0; i < n; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: 8.0,
-                            left: 8.0,
-                            right: 8.0,
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _showDeliverables = true;
+                                  });
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: _showDeliverables
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                  backgroundColor: _showDeliverables
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .secondaryContainer,
+                                ),
+                                child: const Text('Deliverables'),
+                              ),
+                              const SizedBox(width: 8),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _showDeliverables = false;
+                                  });
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: !_showDeliverables
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                  backgroundColor: !_showDeliverables
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .secondaryContainer,
+                                ),
+                                child: const Text('Time Slots'),
+                              ),
+                            ],
                           ),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                          if (_showDeliverables)
+                            Column(
+                              children: List.generate(
+                                10,
+                                (index) => DueDateCard(
+                                  color: Colors.red,
+                                  name: 'Course $index',
+                                  type: 'Assignment $index',
+                                  dueDate: DateTime.now(),
+                                ),
+                              ),
                             ),
-                            color:
-                                Theme.of(context).colorScheme.onInverseSurface,
-                            child: const ListTile(
-                              leading: Icon(Icons.compass_calibration_sharp),
-                              title: Text('Due Date'),
-                              subtitle: Text('Course Name'),
+                          if (!_showDeliverables)
+                            Column(
+                              children: List.generate(
+                                3,
+                                (index) => LectureCard(
+                                  name: "Course ${index + 1}",
+                                  type: "Lecture ${index + 1}",
+                                  color: Colors.green,
+                                  lectureTime: DateTime.now(),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
