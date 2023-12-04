@@ -3,7 +3,9 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../model/course.dart';
+import '../model/deliverable.dart';
 import '../model/timeslot.dart';
+import 'deliverable_controller.dart';
 
 class ParseController {
   static Map<String, int> dayIndexMap = {
@@ -14,6 +16,21 @@ class ParseController {
     'thu': DateTime.thursday,
     'fri': DateTime.friday,
     'sat': DateTime.saturday,
+  };
+
+  static Map<String, int> monthIndexMap = {
+    'jan': DateTime.january,
+    'feb': DateTime.february,
+    'mar': DateTime.march,
+    'apr': DateTime.april,
+    'may': DateTime.may,
+    'jun': DateTime.june,
+    'jul': DateTime.july,
+    'aug': DateTime.august,
+    'sep': DateTime.september,
+    'oct': DateTime.october,
+    'nov': DateTime.november,
+    'dec': DateTime.december,
   };
 
   ParseController();
@@ -35,16 +52,6 @@ class ParseController {
     document.dispose();
 
     return trimmedText;
-
-    // print(getLecturesList(trimmedText));
-    // print(getLabsList(trimmedText));
-
-    // print(getLectureTimeslot(trimmedText).name);
-    // print(getLabTimeslot(trimmedText).name);
-
-    //TimeslotController timeslotController = TimeslotController();
-
-    // TODO: add the list of datetimes to the users schedule
   }
 
   static Future<void> addTimeslotsFromPDF(Course? course) async {
@@ -53,6 +60,41 @@ class ParseController {
     TimeslotController timeslotController = TimeslotController(course: course);
     timeslotController.createTimeslot(getLectureTimeslot(text));
     timeslotController.createTimeslot(getLabTimeslot(text));
+    addDeliverablesFromPDF(course, text);
+  }
+
+  static Future<void> addDeliverablesFromPDF(
+    Course? course,
+    String syllabusText,
+  ) async {
+    // Will only input deliverables that have due dates specified :)
+    RegExp pattern = RegExp(r'(\w+)[(](\w+\d+)[)](\d+)%');
+
+    Iterable<RegExpMatch> matches = pattern.allMatches(syllabusText);
+
+    DateTime now = DateTime.now();
+
+    for (RegExpMatch match in matches) {
+      String? name = match.group(1);
+      String? dueDate = match.group(2);
+      String? weight = match.group(3);
+
+      Deliverable deliverable = Deliverable(
+        name: name!,
+        due: DateTime(
+          now.year,
+          monthIndexMap[dueDate!.substring(0, 3)]!,
+          int.parse(dueDate.substring(3)),
+          23,
+          59,
+        ),
+        weight: double.parse(weight!),
+      );
+
+      DeliverableController deliverableController =
+          DeliverableController(course: course);
+      deliverableController.createDeliverable(deliverable);
+    }
   }
 
   static Timeslot getLectureTimeslot(String syllabusText) {

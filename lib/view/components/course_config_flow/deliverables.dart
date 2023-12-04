@@ -1,3 +1,4 @@
+import 'package:course_compass/controller/timeslot_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -36,9 +37,11 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
       lastDate: widget.course!.end,
     );
     if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      setState(
+        () {
+          _selectedDate = picked;
+        },
+      );
     }
   }
 
@@ -123,6 +126,10 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
                 padding: const EdgeInsets.only(right: 10.0),
                 child: ElevatedButton(
                   onPressed: () {
+                    TimeslotController timeslotController = TimeslotController(
+                      course: widget.course,
+                    );
+                    timeslotController.fillSchedule();
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();

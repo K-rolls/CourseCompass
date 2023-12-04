@@ -1,8 +1,11 @@
+import 'package:course_compass/controller/schedule_controller.dart';
+import 'package:course_compass/model/schedule.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../model/course.dart';
 import '../model/timeslot.dart';
+import 'parse_controller.dart';
 
 class TimeslotController {
   final user = FirebaseAuth.instance.currentUser;
@@ -76,5 +79,43 @@ class TimeslotController {
 
   Stream<QuerySnapshot> getStream() {
     return timeslotCollection.snapshots();
+  }
+
+  Future<void> fillSchedule() async {
+    try {
+      List<Timeslot> timeslots = await listTimeslots();
+      ScheduleController scheduleController =
+          ScheduleController(course: course);
+
+      int weeksInSemester = weeksUntilDate(course!.end);
+
+      for (Timeslot timeslot in timeslots) {
+        for (int i = 0; i < weeksInSemester; i++) {
+          for (int j = 0; j < timeslot.days.length; j++) {
+            if (timeslot.days[j] == true) {
+              DateTime dateTime = ParseController.nextDatetimeWeekday(
+                time: timeslot.time,
+                targetDayIndex: j,
+              );
+              DateTime incrementedDateTime = dateTime.add(
+                Duration(days: i * 7),
+              );
+              Schedule schedule = Schedule(
+                name: timeslot.name,
+                dateTime: incrementedDateTime,
+              );
+              scheduleController.createSchedule(schedule);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      throw Exception('fillSchedule - $e');
+    }
+  }
+
+  int weeksUntilDate(DateTime targetDate) {
+    DateTime now = DateTime.now();
+    return targetDate.difference(now).inDays ~/ 7;
   }
 }

@@ -6,7 +6,7 @@ import '../model/schedule.dart';
 
 class ScheduleController {
   final user = FirebaseAuth.instance.currentUser;
-  Course course;
+  Course? course;
 
   final CollectionReference scheduleCollection;
 
@@ -15,7 +15,7 @@ class ScheduleController {
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection('userCourses')
-            .doc(course.id)
+            .doc(course?.id)
             .collection('courseSchedule');
 
   Future<DocumentReference<Object?>> createSchedule(Schedule schedule) async {

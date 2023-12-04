@@ -8,6 +8,7 @@ import '../../controller/course_controller.dart';
 import '../../custom_icons.dart';
 import '../../model/course.dart';
 import '../course_view.dart';
+import 'course_config_flow/general.dart';
 
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
@@ -182,7 +183,13 @@ class NavDrawerState extends State<NavDrawer> {
                   size: 25.0,
                 ),
                 onTap: () {
-                  // TODO: Implement Add Course screen navigation
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          const CourseConfigGeneral(),
+                    ),
+                  );
                 },
               ),
               const Divider(),

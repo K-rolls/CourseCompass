@@ -38,9 +38,11 @@ class AttendanceState extends State<AttendanceView> {
               Checkbox(
                 value: value,
                 onChanged: (bool? value) {
-                  setState(() {
-                    this.value = value!;
-                  });
+                  setState(
+                    () {
+                      this.value = value!;
+                    },
+                  );
                 },
               ),
             ],
