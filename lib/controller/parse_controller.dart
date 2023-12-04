@@ -1,8 +1,12 @@
+import 'package:course_compass/controller/timeslot_controller.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../model/course.dart';
+import '../model/timeslot.dart';
+
 class ParseController {
-  Map<String, int> dayIndexMap = {
+  static Map<String, int> dayIndexMap = {
     'sun': DateTime.sunday,
     'mon': DateTime.monday,
     'tue': DateTime.tuesday,
@@ -14,7 +18,7 @@ class ParseController {
 
   ParseController();
 
-  Future<void> extractTextFromPDF() async {
+  static Future<String> extractTextFromPDF() async {
     FilePickerResult? file = await FilePicker.platform.pickFiles();
     List<int> fileBytes = file!.files.first.bytes!;
     final PdfDocument document = PdfDocument(inputBytes: fileBytes);
@@ -30,16 +34,134 @@ class ParseController {
 
     document.dispose();
 
-    getLecturesList(trimmedText);
-    getLabsList(trimmedText);
+    return trimmedText;
+
+    // print(getLecturesList(trimmedText));
+    // print(getLabsList(trimmedText));
+
+    // print(getLectureTimeslot(trimmedText).name);
+    // print(getLabTimeslot(trimmedText).name);
+
+    //TimeslotController timeslotController = TimeslotController();
 
     // TODO: add the list of datetimes to the users schedule
   }
 
-  List<DateTime> getLabsList(String sullabusText) {
+  static Future<void> addTimeslotsFromPDF(Course? course) async {
+    String text = await extractTextFromPDF();
+
+    TimeslotController timeslotController = TimeslotController(course: course);
+    timeslotController.createTimeslot(getLectureTimeslot(text));
+    timeslotController.createTimeslot(getLabTimeslot(text));
+  }
+
+  static Timeslot getLectureTimeslot(String syllabusText) {
+    RegExp regex =
+        RegExp(r'lecture(\w{3}/\w{3})(\d{1,2}:\d{2})–(\d{1,2}:\d{2})');
+
+    Match? match = regex.firstMatch(syllabusText);
+
+    if (match != null) {
+      DateTime now = DateTime.now();
+
+      String daysOfWeek = match.group(1)!; // tue/thu
+      String startTime = match.group(2)!; // 10:30
+
+      List<String> days = daysOfWeek.split('/');
+      List<String> hourAndMinute = startTime.split(':');
+
+      List<int?> lectureDayIndexList = [
+        dayIndexMap[days[0]],
+        dayIndexMap[days[1]],
+      ];
+      int lectureHour = int.parse(hourAndMinute[0]);
+      int lectureMinute = int.parse(hourAndMinute[1]);
+
+      DateTime lectureTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        lectureHour,
+        lectureMinute,
+      );
+
+      List<bool> dayList = [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ];
+
+      for (int? day in lectureDayIndexList) {
+        dayList[day!] = true;
+      }
+      return Timeslot(
+        name: 'Lecture',
+        days: dayList,
+        time: lectureTime,
+      );
+    } else {
+      throw Exception("Lab pattern not found in the input text.");
+    }
+  }
+
+  static Timeslot getLabTimeslot(String syllabusText) {
     RegExp regex = RegExp(r'lab([a-z]{3})(\d{1,2}:\d{2})–(\d{1,2}:\d{2}[ap]m)');
 
-    Match? match = regex.firstMatch(sullabusText);
+    Match? match = regex.firstMatch(syllabusText);
+
+    if (match != null) {
+      DateTime now = DateTime.now();
+
+      String dayOfWeek = match.group(1)!;
+      String startTime = match.group(2)!;
+      String endTime = match.group(3)!;
+
+      List<String> hourAndMinute = startTime.split(':');
+
+      int? labDayIndex = dayIndexMap[dayOfWeek];
+      int labHour = int.parse(hourAndMinute[0]);
+      int labMinute = int.parse(hourAndMinute[1]);
+
+      if (endTime.contains("pm")) {
+        labHour = labHour + 12;
+      }
+
+      DateTime labTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        labHour,
+        labMinute,
+      );
+
+      List<bool> dayList = [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ];
+      dayList[labDayIndex!] = true;
+      return Timeslot(
+        name: 'Lab',
+        days: dayList,
+        time: labTime,
+      );
+    } else {
+      throw Exception("Lab pattern not found in the input text.");
+    }
+  }
+
+  static List<DateTime> getLabsList(String syllabusText) {
+    RegExp regex = RegExp(r'lab([a-z]{3})(\d{1,2}:\d{2})–(\d{1,2}:\d{2}[ap]m)');
+
+    Match? match = regex.firstMatch(syllabusText);
 
     if (match != null) {
       DateTime now = DateTime.now();
@@ -82,7 +204,7 @@ class ParseController {
     }
   }
 
-  List<DateTime> getLecturesList(String syllabusText) {
+  static List<DateTime> getLecturesList(String syllabusText) {
     // Define a regular expression to match the lecture pattern
     RegExp regex =
         RegExp(r'lecture(\w{3}/\w{3})(\d{1,2}:\d{2})–(\d{1,2}:\d{2})');
@@ -139,7 +261,7 @@ class ParseController {
     }
   }
 
-  DateTime nextDatetimeWeekday({
+  static DateTime nextDatetimeWeekday({
     required DateTime time,
     required int? targetDayIndex,
   }) {
@@ -150,7 +272,7 @@ class ParseController {
     return time.add(Duration(days: daysUntilNext));
   }
 
-  List<DateTime> generateRecurringDatetimes({
+  static List<DateTime> generateRecurringDatetimes({
     required DateTime initialDatetime,
     required int numRecurrences,
   }) {

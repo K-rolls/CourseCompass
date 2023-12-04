@@ -41,7 +41,7 @@ class CourseViewState extends State<CourseView> {
   late final TimeslotController _timeslotController;
   late List<Timeslot> _timeslots = [];
   late bool _showDeliverables;
-  late final Course course;
+  late final Course? course;
   bool loaded = false;
 
   @override
@@ -70,10 +70,10 @@ class CourseViewState extends State<CourseView> {
     course =
         await _courseController.getCourseByName(courseName: widget.courseName);
     super.setState(() {
-      _questions = course.questions ?? '';
-      _color = course.color ?? Colors.blueGrey;
-      _endDate = course.end;
-      _startDate = course.start;
+      _questions = course!.questions ?? '';
+      _color = course!.color ?? Colors.blueGrey;
+      _endDate = course!.end;
+      _startDate = course!.start;
       _deliverableController = DeliverableController(course: course);
       _timeslotController = TimeslotController(course: course);
     });
@@ -92,14 +92,14 @@ class CourseViewState extends State<CourseView> {
   }
 
   Future<void> updateColor() async {
-    if (_color != course.color) {
+    if (_color != course!.color) {
       var newCourse = Course(
-        id: course.id,
+        id: course!.id,
         color: _color,
-        name: course.name,
-        start: course.start,
-        end: course.end,
-        questions: course.questions,
+        name: course!.name,
+        start: course!.start,
+        end: course!.end,
+        questions: course!.questions,
       );
       await _courseController
           .updateCourse(newCourse)
@@ -108,13 +108,13 @@ class CourseViewState extends State<CourseView> {
   }
 
   Future<void> updateQuestions() async {
-    if (_questions != course.questions) {
+    if (_questions != course!.questions) {
       var newCourse = Course(
-        id: course.id,
-        color: course.color,
-        name: course.name,
-        start: course.start,
-        end: course.end,
+        id: course!.id,
+        color: course!.color,
+        name: course!.name,
+        start: course!.start,
+        end: course!.end,
         questions: _questions,
       );
       await _courseController.updateCourse(newCourse);
@@ -605,8 +605,7 @@ class CourseViewState extends State<CourseView> {
                                       name: timeslot.name,
                                       color: _color,
                                       weekDays: (timeslot.days).cast<bool>(),
-                                      startTime:
-                                          TimeOfDay.fromDateTime(timeslot.time),
+                                      startTime: timeslot.time,
                                       padding: false,
                                     ),
                                   )

@@ -1,3 +1,4 @@
+import 'package:course_compass/view/components/course_config_flow/general.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/grades': (context) => const GradesView(),
         '/profile': (context) => const ProfileView(),
         '/auth_gate': (context) => const AuthGateView(),
+        '/add_course': (context) => const CourseConfigGeneral(),
       },
     );
   }

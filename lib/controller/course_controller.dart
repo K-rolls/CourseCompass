@@ -13,14 +13,16 @@ class CourseController {
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection('userCourses');
 
-  Future<DocumentReference<Object?>> createCourse(Course course) async {
+  Future<Course?> createCourse(Course course) async {
     if (await courseExists(course)) {
-      throw Exception("createCourse - course already exists");
+      deleteCourse(course);
+      return createCourse(course);
     }
     try {
-      return await courseCollection.add(
+      await courseCollection.add(
         course.toMap(),
       );
+      return await getCourseByName(courseName: course.name);
     } catch (e) {
       throw Exception("createCourse - $e");
     }
@@ -51,7 +53,7 @@ class CourseController {
 
   Future<void> deleteCourse(Course course) async {
     if (!await courseExists(course)) {
-      throw Exception('deleteCourse - No entry found for this date');
+      throw Exception('deleteCourse - No course found');
     }
     try {
       return await courseCollection.doc(course.id).delete();
@@ -75,7 +77,7 @@ class CourseController {
     }
   }
 
-  Future<Course> getCourseByName({required String courseName}) async {
+  Future<Course?> getCourseByName({required String courseName}) async {
     try {
       QuerySnapshot snapshot = await courseCollection
           .where(
@@ -89,7 +91,8 @@ class CourseController {
           .map(
             (doc) => Course.fromMap(doc),
           )
-          .toList()[0];
+          .toList()
+          .firstOrNull;
     } catch (e) {
       throw Exception("getCourseByName - $e");
     }

@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
 import './components/course_card.dart';
+import 'components/course_config_flow/general.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -16,7 +17,14 @@ class ProfileView extends StatelessWidget {
       appBar: const CustomAppBar(),
       floatingActionButton: FloatingActionButton.extended(
         isExtended: true,
-        onPressed: () => {},
+        onPressed: () => {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => const CourseConfigGeneral(),
+            ),
+          ),
+        },
         tooltip: 'Add a Course',
         icon: const Icon(Symbols.add),
         label: const Text(

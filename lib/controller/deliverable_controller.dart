@@ -6,7 +6,7 @@ import '../model/deliverable.dart';
 
 class DeliverableController {
   final user = FirebaseAuth.instance.currentUser;
-  Course course;
+  Course? course;
 
   final CollectionReference deliverableCollection;
 
@@ -15,7 +15,7 @@ class DeliverableController {
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection('userCourses')
-            .doc(course.id)
+            .doc(course?.id)
             .collection('courseDeliverables');
 
   Future<DocumentReference<Object?>> createDeliverable(
@@ -74,5 +74,9 @@ class DeliverableController {
     } catch (e) {
       throw Exception("deliverableExists - $e");
     }
+  }
+
+  Stream<QuerySnapshot> getStream() {
+    return deliverableCollection.snapshots();
   }
 }

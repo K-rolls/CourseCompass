@@ -25,10 +25,13 @@ class Timeslot {
 
   static Timeslot fromMap(DocumentSnapshot doc) {
     Map<String, dynamic> map = doc.data() as Map<String, dynamic>;
+
+    List<dynamic> daysCopy = map['days'];
+
     return Timeslot(
       id: doc.id,
       name: map['name'],
-      days: map['days'],
+      days: daysCopy,
       time: DateTime.parse(
         map['time'].toDate().toString(),
       ),

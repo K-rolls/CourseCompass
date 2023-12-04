@@ -6,7 +6,7 @@ import '../model/timeslot.dart';
 
 class TimeslotController {
   final user = FirebaseAuth.instance.currentUser;
-  Course course;
+  Course? course;
 
   final CollectionReference timeslotCollection;
 
@@ -15,7 +15,7 @@ class TimeslotController {
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection('userCourses')
-            .doc(course.id)
+            .doc(course?.id)
             .collection('courseTimeslots');
 
   Future<DocumentReference<Object?>> createTimeslot(Timeslot timeslot) async {
@@ -72,5 +72,9 @@ class TimeslotController {
     } catch (e) {
       throw Exception("timeslotExists - $e");
     }
+  }
+
+  Stream<QuerySnapshot> getStream() {
+    return timeslotCollection.snapshots();
   }
 }

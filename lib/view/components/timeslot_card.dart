@@ -6,8 +6,8 @@ import '../styles/text_style.dart';
 class TimeslotCard extends StatelessWidget {
   final String name;
   final Color color;
-  final List<bool> weekDays;
-  final TimeOfDay startTime;
+  final List<dynamic> weekDays;
+  final DateTime startTime;
   final bool padding;
 
   /// Creates a card that displays each course timeslot.
@@ -86,7 +86,7 @@ class TimeslotCard extends StatelessWidget {
                         enableFeedback: false,
                         firstDayOfWeek: 0,
                         onChanged: null,
-                        values: weekDays,
+                        values: weekDays.map((item) => item as bool?).toList(),
                       ),
                     ),
                     Row(
