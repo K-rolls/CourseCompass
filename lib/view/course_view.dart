@@ -578,6 +578,7 @@ class CourseViewState extends State<CourseView> {
                                       color: _color,
                                       name: deliverable.name,
                                       dueDate: deliverable.due,
+                                      grade: deliverable.grade,
                                       weight: deliverable.weight,
                                       dueTime: TimeOfDay.fromDateTime(
                                         deliverable.due.toLocal(),

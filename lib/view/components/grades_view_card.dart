@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../model/course.dart';
 import '../course_grades.dart';
 import '../styles/text_style.dart';
 
 class GradesCard extends StatelessWidget {
   final String name;
   final Color color;
+  final Course course;
 
   /// Creates a card that displays the average for a course and how much is needed to get x %.
   ///
@@ -16,6 +18,7 @@ class GradesCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.color,
+    required this.course,
   });
 
   @override
@@ -41,6 +44,7 @@ class GradesCard extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CourseGradesView(
+                      course: course,
                       name: name,
                       color: color,
                     ),
@@ -69,32 +73,42 @@ class GradesCard extends StatelessWidget {
                       ],
                     ),
                     Divider(color: color),
-                    Row(
-                      children: [
-                        Text(
-                          'Grade',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                        const Spacer(),
-                        Text(
-                          '80%',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Needed to get 100%',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                        const Spacer(),
-                        Text(
-                          '90%',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                      ],
-                    ),
+                    course.currentGrade == null ||
+                            course.gradeWanted == null ||
+                            course.gradeNeeded == null
+                        ? const Text(
+                            'Configure grades by tapping on this card!',
+                          )
+                        : Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Grade',
+                                    style: CustomTextStyle.bodyStyle,
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    course.currentGrade!.round().toString(),
+                                    style: CustomTextStyle.bodyStyle,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Needed to get ${course.gradeWanted?.round().toString()}%',
+                                    style: CustomTextStyle.bodyStyle,
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    '${course.gradeNeeded?.round().toString()}%',
+                                    style: CustomTextStyle.bodyStyle,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                   ],
                 ),
               ),

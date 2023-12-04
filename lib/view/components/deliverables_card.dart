@@ -8,9 +8,11 @@ class DeliverablesCard extends StatelessWidget {
   final Color color;
   final num weight;
   final DateTime dueDate;
-  final TimeOfDay dueTime;
+  final TimeOfDay? dueTime;
   final bool padding;
   final Function? onTap;
+  final double? grade;
+  final bool edit;
 
   /// Creates a card that displays each course deliverable.
   const DeliverablesCard({
@@ -19,9 +21,11 @@ class DeliverablesCard extends StatelessWidget {
     required this.color,
     required this.weight,
     required this.dueDate,
-    required this.dueTime,
+    required this.grade,
     required this.onTap,
+    required this.dueTime,
     this.padding = true,
+    this.edit = false,
   });
 
   @override
@@ -73,32 +77,74 @@ class DeliverablesCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          'Due Date',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                        const Spacer(),
-                        Text(
-                          DateFormat('MMMEd').format(dueDate),
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Due Time',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${dueTime.hour.toString().padLeft(2, '0')}:${dueTime.minute.toString().padLeft(2, '0')}',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                      ],
-                    ),
+                    grade != null
+                        ? Row(
+                            children: [
+                              Text(
+                                'Grade',
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                              const Spacer(),
+                              Text(
+                                '${grade.toString()}%',
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Text(
+                                'Grade',
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                              const Spacer(),
+                              Text(
+                                'Tap to Input',
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                            ],
+                          ),
+                    dueTime == null
+                        ? Row(
+                            children: [
+                              Text(
+                                'Due Date',
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                              const Spacer(),
+                              Text(
+                                DateFormat.MMMd().add_jm().format(dueDate),
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Text(
+                                'Due Date',
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                              const Spacer(),
+                              Text(
+                                DateFormat('MMMEd').format(dueDate),
+                                style: CustomTextStyle.bodyStyle,
+                              ),
+                            ],
+                          ),
+                    if (dueTime != null)
+                      Row(
+                        children: [
+                          Text(
+                            'Due Time',
+                            style: CustomTextStyle.bodyStyle,
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${dueTime?.hour.toString().padLeft(2, '0')}:${dueTime?.minute.toString().padLeft(2, '0')}',
+                            style: CustomTextStyle.bodyStyle,
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),

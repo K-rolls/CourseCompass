@@ -3,47 +3,73 @@ import 'package:flutter/material.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
 import './components/grades_view_card.dart';
+import '../controller/course_controller.dart';
+import '../model/course.dart';
 
-class GradesView extends StatelessWidget {
+class GradesView extends StatefulWidget {
   const GradesView({super.key});
 
   @override
+  GradesViewState createState() => GradesViewState();
+}
+
+class GradesViewState extends State<GradesView> {
+  final CourseController _courseController = CourseController();
+  List<Course> courses = [];
+  bool loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () async {
+      await _fetchCourseData();
+    });
+    Future.delayed(Duration.zero, () async {
+      await _fetchCourseData().then((_) {
+        super.setState(() {
+          loaded = true;
+        });
+      });
+    });
+  }
+
+  Future<void> _fetchCourseData() async {
+    var coursesWaited = await _courseController.listCourses();
+    setState(() {
+      courses = coursesWaited;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      drawer: NavDrawer(),
-      appBar: CustomAppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            GradesCard(
-              name: 'Course 1',
-              color: Colors.blue, // Change color to blue
-            ),
-            GradesCard(
-              name: 'Course 2',
-              color: Colors.teal, // Change color to teal
-            ),
-            GradesCard(
-              name: 'Course 3',
-              color: Colors.amber, // Change color to amber
-            ),
-            GradesCard(
-              name: 'Course 4',
-              color: Colors.purple, // Change color to purple
-            ),
-            GradesCard(
-              name: 'Course 5',
-              color: Colors.cyan, // Change color to cyan
-            ),
-            GradesCard(
-              name: 'Course 6',
-              color: Colors.brown, // Change color to brown
-            ),
-          ],
+    if (!loaded) {
+      return const Scaffold(
+        appBar: CustomAppBar(),
+        drawer: NavDrawer(),
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
-      ),
-    );
+      );
+    } else {
+      return Scaffold(
+        drawer: const NavDrawer(),
+        appBar: const CustomAppBar(),
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: courses
+                .map(
+                  (course) => GradesCard(
+                    name: course.name,
+                    course: course,
+                    color: course.color ?? Colors.blueGrey,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    }
   }
 }

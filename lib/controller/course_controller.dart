@@ -97,4 +97,8 @@ class CourseController {
       throw Exception("getCourseByName - $e");
     }
   }
+
+  Stream<QuerySnapshot> getStream() {
+    return courseCollection.snapshots();
+  }
 }

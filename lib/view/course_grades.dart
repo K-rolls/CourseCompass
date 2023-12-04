@@ -1,66 +1,49 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../controller/course_controller.dart';
+import '../model/course.dart';
+import '../model/deliverable.dart';
 import './components/app_bar.dart';
 import './components/nav_drawer.dart';
 import './styles/text_style.dart';
 import './components/deliverables_card.dart';
+import '../../../controller/deliverable_controller.dart';
 
 class CourseGradesView extends StatefulWidget {
   final String name;
   final Color color;
+  final Course course;
 
-  const CourseGradesView({super.key, required this.name, required this.color});
+  const CourseGradesView({
+    super.key,
+    required this.name,
+    required this.color,
+    required this.course,
+  });
 
   @override
   CourseGradesViewState createState() => CourseGradesViewState();
 }
 
 class CourseGradesViewState extends State<CourseGradesView> {
-  double average = 100;
-  double gradeWanted = 100;
-  late DateTime _selectedDate;
-  late TimeOfDay _selectedTime;
-  final TextEditingController _weightController = TextEditingController();
-  String? weightErrorText;
+  late double average;
+  late double gradeWanted;
+  late double gradeNeeded;
+  final TextEditingController _gradeController = TextEditingController();
+  late DeliverableController deliverableController;
+  late CourseController courseController;
+  List<Deliverable> deliverablesList = [];
+  String? gradeErrorText;
 
-  Future<void> _selectDate(BuildContext context, StateSetter setState) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(
-        DateTime.now().year,
-        12,
-        31,
-      ),
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context, StateSetter setState) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
-
-  String _validateWeight() {
+  String _validateGrade() {
     // Validate that the entered value is between 0 and 100
     try {
-      int weight = int.parse(_weightController.text);
-      if (weight < 0 || weight > 100) {
-        return 'Weight must be between 0 and 100';
+      double grade = double.parse(_gradeController.text);
+      if (grade < 0.0 || grade > 100.0) {
+        return 'Grade must be between 0 and 100';
       }
     } catch (e) {
       return 'Invalid numeric input';
@@ -68,28 +51,66 @@ class CourseGradesViewState extends State<CourseGradesView> {
     return ''; // No validation error
   }
 
-  double calculateNeededGrade(double average, double gradeWanted) {
-    double remainingPercentage = 50;
-    double currentPercentage = 100 - remainingPercentage;
-    double currentGrade = average * (currentPercentage / 100);
-    double remainingGrade = gradeWanted - currentGrade;
-    double neededGrade = remainingGrade / (remainingPercentage / 100);
-    return neededGrade;
+  double calculateNeededGrade(
+    double average,
+    double gradeWanted,
+    double remainingWeight,
+  ) {
+    if (remainingWeight == 0) {
+      return 0;
+    } else {
+      return (gradeWanted - (1 - (remainingWeight / 100)) * average) /
+          (remainingWeight / 100);
+    }
+  }
+
+  double updateCurrentGrade(List<Deliverable> deliverableList) {
+    double newGrade = 0;
+    double weightSum = 0;
+    for (int i = 0; i < deliverableList.length; i++) {
+      if (deliverableList[i].grade != null) {
+        newGrade += (deliverableList[i].grade! * deliverableList[i].weight);
+        weightSum += deliverableList[i].weight;
+      }
+    }
+    newGrade /= weightSum;
+    return newGrade;
+  }
+
+  double calculateRemainingWeight(List<Deliverable> deliverableList) {
+    double remainingWeight = 100;
+    for (int i = 0; i < deliverableList.length; i++) {
+      if (deliverableList[i].grade != null) {
+        remainingWeight -= deliverableList[i].weight;
+      }
+    }
+    return remainingWeight;
+  }
+
+  @override
+  void initState() {
+    average = widget.course.currentGrade?.toDouble() ?? 0;
+    gradeWanted = widget.course.gradeWanted?.toDouble() ?? 100;
+    gradeNeeded = widget.course.gradeNeeded?.toDouble() ?? 100;
+    deliverableController = DeliverableController(course: widget.course);
+    courseController = CourseController();
+    Future.delayed(Duration.zero, () async {
+      var dList = await deliverableController.listDeliverables();
+      setState(() {
+        deliverablesList = dList;
+      });
+    });
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     // ignore: prefer_function_declarations_over_variables
     final showBottomModal = (
-      String name,
-      double weight,
-      DateTime dueDate,
-      TimeOfDay dueTime,
+      Deliverable deliverable,
       BuildContext context,
     ) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _selectedDate = dueDate;
-        _selectedTime = dueTime;
         showModalBottomSheet(
           backgroundColor: Theme.of(context).colorScheme.background,
           context: context,
@@ -108,28 +129,13 @@ class CourseGradesViewState extends State<CourseGradesView> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            TextField(
-                              decoration: InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                    width: 2.0,
-                                  ),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                    width: 2.0,
-                                  ),
-                                ),
-                                labelText: name,
-                              ),
+                            Text(
+                              deliverable.name,
+                              style: const TextStyle(fontSize: 20),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 10),
                             TextField(
-                              controller: _weightController,
+                              controller: _gradeController,
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
                                 FilteringTextInputFormatter.allow(
@@ -151,9 +157,9 @@ class CourseGradesViewState extends State<CourseGradesView> {
                                     width: 2.0,
                                   ),
                                 ),
-                                labelText: '$weight %',
+                                labelText: 'Grade (%)',
                                 hintText: 'Enter a value between 0 and 100',
-                                errorText: weightErrorText,
+                                errorText: gradeErrorText,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -174,43 +180,9 @@ class CourseGradesViewState extends State<CourseGradesView> {
                                   children: [
                                     Text(
                                       style: const TextStyle(fontSize: 20),
-                                      _selectedDate
-                                          .toLocal()
-                                          .toString()
-                                          .split(' ')[0],
-                                    ),
-                                    IconButton(
-                                      onPressed: () =>
-                                          _selectDate(context, setState),
-                                      icon: const Icon(Icons.edit),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Row(
-                                  children: [
-                                    Icon(Icons.schedule),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      style: TextStyle(fontSize: 20),
-                                      'Due Time',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      style: const TextStyle(fontSize: 20),
-                                      '${_selectedTime.hour}:${_selectedTime.minute.toString().padLeft(2, '0')}',
-                                    ),
-                                    IconButton(
-                                      onPressed: () =>
-                                          _selectTime(context, setState),
-                                      icon: const Icon(Icons.edit),
+                                      DateFormat.MMMd()
+                                          .add_jm()
+                                          .format(deliverable.due),
                                     ),
                                   ],
                                 ),
@@ -222,18 +194,67 @@ class CourseGradesViewState extends State<CourseGradesView> {
                               children: [
                                 TextButton(
                                   onPressed: () {
-                                    String errorText = _validateWeight();
+                                    String errorText = _validateGrade();
                                     if (errorText.isEmpty) {
+                                      Deliverable newDeliverable = Deliverable(
+                                        id: deliverable.id,
+                                        name: deliverable.name,
+                                        due: deliverable.due,
+                                        weight: deliverable.weight,
+                                        done: true,
+                                        grade: int.parse(_gradeController.text)
+                                            .toDouble(),
+                                      );
+                                      deliverableController
+                                          .updateDeliverable(newDeliverable);
+
+                                      Future.delayed(Duration.zero, () async {
+                                        var dList = await deliverableController
+                                            .listDeliverables();
+                                        var newAverage =
+                                            updateCurrentGrade(dList);
+
+                                        var remainingWeight =
+                                            calculateRemainingWeight(dList);
+
+                                        var newGradeNeeded =
+                                            calculateNeededGrade(
+                                          newAverage,
+                                          gradeWanted,
+                                          remainingWeight,
+                                        );
+
+                                        var newCourse = Course(
+                                          id: widget.course.id,
+                                          name: widget.course.name,
+                                          start: widget.course.start,
+                                          end: widget.course.end,
+                                          color: widget.course.color,
+                                          questions: widget.course.questions,
+                                          currentGrade: newAverage,
+                                          gradeNeeded: newGradeNeeded,
+                                          gradeWanted: gradeWanted,
+                                        );
+
+                                        await courseController
+                                            .updateCourse(newCourse);
+                                        super.setState(() {
+                                          deliverablesList = dList;
+                                          average = newAverage;
+                                          gradeNeeded = newGradeNeeded;
+                                        });
+                                      });
+
                                       Navigator.of(context).pop();
                                     } else {
                                       setState(() {
-                                        weightErrorText = errorText;
+                                        gradeErrorText = errorText;
                                       });
                                     }
                                   },
                                   child: const Text(
                                     style: TextStyle(fontSize: 15),
-                                    'Save Deliverable',
+                                    'Save Grade',
                                   ),
                                 ),
                               ],
@@ -315,7 +336,7 @@ class CourseGradesViewState extends State<CourseGradesView> {
                           ),
                           const Spacer(),
                           Text(
-                            "$average",
+                            "${average.round()}",
                             style: CustomTextStyle.bodyStyle,
                           ),
                         ],
@@ -334,7 +355,7 @@ class CourseGradesViewState extends State<CourseGradesView> {
                           ),
                           const Spacer(),
                           Text(
-                            '${calculateNeededGrade(average, gradeWanted)}',
+                            '${gradeNeeded.round()}',
                             style: CustomTextStyle.bodyStyle,
                           ),
                         ],
@@ -390,6 +411,44 @@ class CourseGradesViewState extends State<CourseGradesView> {
                               onChanged: (value) {
                                 setState(() {
                                   gradeWanted = double.parse(value);
+                                  Future.delayed(
+                                    Duration.zero,
+                                    () async {
+                                      var dList = await deliverableController
+                                          .listDeliverables();
+                                      var newAverage =
+                                          updateCurrentGrade(dList);
+
+                                      var remainingWeight =
+                                          calculateRemainingWeight(dList);
+
+                                      var newGradeNeeded = calculateNeededGrade(
+                                        newAverage,
+                                        gradeWanted,
+                                        remainingWeight,
+                                      );
+
+                                      var newCourse = Course(
+                                        id: widget.course.id,
+                                        name: widget.course.name,
+                                        start: widget.course.start,
+                                        end: widget.course.end,
+                                        color: widget.course.color,
+                                        questions: widget.course.questions,
+                                        currentGrade: newAverage,
+                                        gradeNeeded: newGradeNeeded,
+                                        gradeWanted: gradeWanted,
+                                      );
+
+                                      await courseController
+                                          .updateCourse(newCourse);
+                                      super.setState(() {
+                                        deliverablesList = dList;
+                                        average = newAverage;
+                                        gradeNeeded = newGradeNeeded;
+                                      });
+                                    },
+                                  );
                                 });
                               },
                             ),
@@ -411,22 +470,27 @@ class CourseGradesViewState extends State<CourseGradesView> {
                     const Divider(
                       thickness: 2,
                     ),
-                    for (int i = 0; i < 10; i++)
-                      DeliverablesCard(
-                        name: 'Assignment $i',
-                        color: widget.color,
-                        weight: 10,
-                        dueDate: DateTime.now(),
-                        dueTime: const TimeOfDay(hour: 23, minute: 59),
-                        padding: false,
-                        onTap: () => showBottomModal(
-                          'Assignment $i',
-                          10,
-                          DateTime.now(),
-                          const TimeOfDay(hour: 23, minute: 59),
-                          context,
-                        ),
+                    SingleChildScrollView(
+                      child: Column(
+                        children: deliverablesList
+                            .map(
+                              (deliverable) => DeliverablesCard(
+                                name: deliverable.name,
+                                color: widget.color,
+                                weight: deliverable.weight,
+                                grade: deliverable.grade,
+                                dueDate: deliverable.due,
+                                dueTime: null,
+                                padding: false,
+                                onTap: () => showBottomModal(
+                                  deliverable,
+                                  context,
+                                ),
+                              ),
+                            )
+                            .toList(),
                       ),
+                    ),
                   ],
                 ),
               ),

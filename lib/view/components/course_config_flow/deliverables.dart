@@ -106,6 +106,7 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
                 name: deliverable.name,
                 color: Theme.of(context).colorScheme.secondary,
                 weight: deliverable.weight,
+                grade: deliverable.grade,
                 dueDate: deliverable.due,
                 dueTime: TimeOfDay(
                   hour: deliverable.due.hour,

@@ -8,6 +8,9 @@ class Course {
   final DateTime end;
   final String? questions;
   final Color? color;
+  final num? currentGrade;
+  final num? gradeWanted;
+  final num? gradeNeeded;
 
   Course({
     this.id,
@@ -16,6 +19,9 @@ class Course {
     required this.end,
     this.color,
     this.questions,
+    this.currentGrade,
+    this.gradeWanted,
+    this.gradeNeeded,
   });
 
   Map<String, dynamic> toMap() {
@@ -29,6 +35,9 @@ class Course {
       ),
       'questions': questions,
       'color': color?.value.toString(),
+      'currentGrade': currentGrade,
+      'gradeWanted': gradeWanted,
+      'gradeNeeded': gradeNeeded,
     };
   }
 
@@ -45,6 +54,9 @@ class Course {
       ),
       questions: map['questions'],
       color: map['color'] != null ? Color(int.parse(map['color'])) : null,
+      currentGrade: map['currentGrade'],
+      gradeWanted: map['gradeWanted'],
+      gradeNeeded: map['gradeNeeded'],
     );
   }
 }
