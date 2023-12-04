@@ -40,7 +40,8 @@ class Deliverable {
       ), // Convert back to DateTime
       weight: double.parse(map['weight'].toString()),
       done: map['done'] as bool?,
-      grade: map['grade'] != null ? map['grade'] as double : null,
+      grade:
+          map['grade'] != null ? double.parse(map['grade'].toString()) : null,
     );
   }
 }

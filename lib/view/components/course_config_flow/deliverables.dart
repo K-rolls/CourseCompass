@@ -130,10 +130,7 @@ class _CourseConfigDeliverablesState extends State<CourseConfigDeliverables> {
                       course: widget.course,
                     );
                     timeslotController.fillSchedule();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
+                    Navigator.of(context).popAndPushNamed('/home');
                   },
                   child: const Text('Done'),
                 ),

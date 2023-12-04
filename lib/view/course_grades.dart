@@ -29,9 +29,7 @@ class CourseGradesViewState extends State<CourseGradesView> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      // TODO: needs to be set to start of course
       firstDate: DateTime(2000),
-      // TODO: needs to be set to end of course
       lastDate: DateTime(
         DateTime.now().year,
         12,
@@ -226,7 +224,6 @@ class CourseGradesViewState extends State<CourseGradesView> {
                                   onPressed: () {
                                     String errorText = _validateWeight();
                                     if (errorText.isEmpty) {
-                                      // TODO: Process the entered values
                                       Navigator.of(context).pop();
                                     } else {
                                       setState(() {

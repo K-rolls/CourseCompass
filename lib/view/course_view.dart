@@ -308,7 +308,6 @@ class CourseViewState extends State<CourseView> {
                                   onPressed: () {
                                     String errorText = _validateWeight();
                                     if (errorText.isEmpty) {
-                                      // TODO: Process the entered values
                                       Navigator.of(context).pop();
                                     } else {
                                       setState(() {

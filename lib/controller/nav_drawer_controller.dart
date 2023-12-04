@@ -2,7 +2,6 @@ import './course_controller.dart';
 
 class NavDrawerController {
   /// Returns the named route for the selected option.
-  /// TODO: Will need to update this to use a streambuilder
   /// if int is within range of course pages, determine name of page to push to
   /// and since CoursePage has input parameters we will need to return a 2 index list
   static Future<String?> intToRoute(int? option) async {

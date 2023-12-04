@@ -11,8 +11,6 @@ class TimeslotCard extends StatelessWidget {
   final bool padding;
 
   /// Creates a card that displays each course timeslot.
-
-  //TODO: Update this to take in stream params
   const TimeslotCard({
     super.key,
     required this.name,
@@ -58,52 +56,46 @@ class TimeslotCard extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6.0),
             ),
-            child: InkWell(
-              onTap: () {
-                // TODO: Implement onTap functionality
-              },
-              borderRadius: BorderRadius.circular(6.0),
-              child: Padding(
-                padding: CustomTextStyle.defaultPadding,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          name,
-                          style: CustomTextStyle.titleStyle,
-                        ),
-                      ],
-                    ),
-                    Divider(color: color),
-                    IgnorePointer(
-                      child: WeekdaySelector(
-                        color: theme.colorScheme.onSurface,
-                        selectedColor: theme.colorScheme.onPrimaryContainer,
-                        fillColor: theme.colorScheme.surface,
-                        selectedFillColor: theme.colorScheme.primaryContainer,
-                        enableFeedback: false,
-                        firstDayOfWeek: 0,
-                        onChanged: null,
-                        values: weekDays.map((item) => item as bool?).toList(),
+            child: Padding(
+              padding: CustomTextStyle.defaultPadding,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: CustomTextStyle.titleStyle,
                       ),
+                    ],
+                  ),
+                  Divider(color: color),
+                  IgnorePointer(
+                    child: WeekdaySelector(
+                      color: theme.colorScheme.onSurface,
+                      selectedColor: theme.colorScheme.onPrimaryContainer,
+                      fillColor: theme.colorScheme.surface,
+                      selectedFillColor: theme.colorScheme.primaryContainer,
+                      enableFeedback: false,
+                      firstDayOfWeek: 0,
+                      onChanged: null,
+                      values: weekDays.map((item) => item as bool?).toList(),
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          'Start Time',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}',
-                          style: CustomTextStyle.bodyStyle,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Start Time',
+                        style: CustomTextStyle.bodyStyle,
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}',
+                        style: CustomTextStyle.bodyStyle,
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

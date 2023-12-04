@@ -1,23 +1,34 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../course_view.dart';
+import '../../controller/course_controller.dart';
+import '../../model/course.dart';
 import '../styles/text_style.dart';
+import '../course_view.dart';
 
 class CourseCard extends StatelessWidget {
   final String name;
   final Color color;
+  final Future<Null> Function() onLongPress;
+  final CourseController _courseController = CourseController();
 
   /// Creates a card that displays a course that the user has added.
   ///
   /// The `name` parameter is a string representing the name of the course.
   /// The `color` parameter is a color representing the color of the card.
-  // TODO: Update this to take in stream params
-  const CourseCard({
+  CourseCard({
     super.key,
     required this.name,
     required this.color,
+    required this.onLongPress,
   });
+
+  Future<void> deleteCourse() async {
+    Course? course = await _courseController.getCourseByName(courseName: name);
+    await _courseController.deleteCourse(course!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +57,7 @@ class CourseCard extends StatelessWidget {
                   ),
                 );
               },
+              onLongPress: onLongPress,
               borderRadius: BorderRadius.circular(6.0),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),

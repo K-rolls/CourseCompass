@@ -13,7 +13,6 @@ class DeliverablesCard extends StatelessWidget {
   final Function? onTap;
 
   /// Creates a card that displays each course deliverable.
-  //TODO: Update this to take in stream params
   const DeliverablesCard({
     super.key,
     required this.name,

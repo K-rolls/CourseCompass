@@ -17,7 +17,6 @@ class GradesView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // TODO: Update this to streambuilder
             GradesCard(
               name: 'Course 1',
               color: Colors.blue, // Change color to blue

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import "package:flutter/material.dart";
 
@@ -59,32 +60,62 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        IconButton(
-          tooltip: "Go to profile page",
-          iconSize: 30,
-          icon: Icon(
-            Symbols.account_circle,
-            weight: 470,
-            color: Theme.of(context).colorScheme.secondary,
+        if (ModalRoute.of(context)!.settings.name != '/profile')
+          IconButton(
+            tooltip: "Go to profile page",
+            iconSize: 30,
+            icon: Icon(
+              Symbols.account_circle,
+              weight: 470,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            onPressed: () {
+              Navigator.pushReplacementNamed(
+                context,
+                '/profile',
+                arguments: PageRouteBuilder(
+                  transitionDuration:
+                      const Duration(milliseconds: _transitionTime),
+                  pageBuilder: (_, __, ___) => const ProfileView(),
+                  transitionsBuilder: (_, animation, __, child) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
           ),
-          onPressed: () {
-            Navigator.pushReplacementNamed(
-              context,
-              '/profile',
-              arguments: PageRouteBuilder(
-                transitionDuration:
-                    const Duration(milliseconds: _transitionTime),
-                pageBuilder: (_, __, ___) => const ProfileView(),
-                transitionsBuilder: (_, animation, __, child) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-              ),
-            );
-          },
-        ),
+        if (ModalRoute.of(context)!.settings.name == '/profile')
+          IconButton(
+            tooltip: "Logout",
+            iconSize: 30,
+            icon: Icon(
+              Symbols.logout_rounded,
+              weight: 470,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut().then((value) {
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/auth_gate',
+                  arguments: PageRouteBuilder(
+                    transitionDuration:
+                        const Duration(milliseconds: _transitionTime),
+                    pageBuilder: (_, __, ___) => const HomeView(),
+                    transitionsBuilder: (_, animation, __, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              });
+            },
+          ),
       ],
     );
   }

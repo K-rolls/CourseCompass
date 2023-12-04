@@ -8,7 +8,6 @@ import '../../controller/course_controller.dart';
 import '../../custom_icons.dart';
 import '../../model/course.dart';
 import '../course_view.dart';
-import 'course_config_flow/general.dart';
 
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
@@ -130,7 +129,7 @@ class NavDrawerState extends State<NavDrawer> {
                         return ListTile(
                           leading: Icon(
                             Symbols.circle,
-                            color: course.color ?? Colors.red,
+                            color: course.color ?? Colors.blueGrey,
                             size: 25,
                           ),
                           selected: selectedIndex == index + 3,
@@ -183,13 +182,7 @@ class NavDrawerState extends State<NavDrawer> {
                   size: 25.0,
                 ),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          const CourseConfigGeneral(),
-                    ),
-                  );
+                  Navigator.of(context).pushNamed('/add_course');
                 },
               ),
               const Divider(),

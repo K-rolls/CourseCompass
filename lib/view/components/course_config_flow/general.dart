@@ -76,27 +76,30 @@ class _CourseConfigGeneralState extends State<CourseConfigGeneral> {
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             title: const Text('General'),
             actions: [
-              ElevatedButton(
-                onPressed: () async {
-                  Course? course = Course(
-                    name: courseNameController.text,
-                    start: _selectedStartDate,
-                    end: _selectedEndDate,
-                    color: _color,
-                  );
-                  CourseController courseController = CourseController();
-                  course = await courseController.createCourse(course);
-                  // ignore: use_build_context_synchronously
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => CourseConfigSchedule(
-                        course: course,
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Course? course = Course(
+                      name: courseNameController.text,
+                      start: _selectedStartDate,
+                      end: _selectedEndDate,
+                      color: _color,
+                    );
+                    CourseController courseController = CourseController();
+                    course = await courseController.createCourse(course);
+                    // ignore: use_build_context_synchronously
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => CourseConfigSchedule(
+                          course: course,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: const Text('Next'),
+                    );
+                  },
+                  child: const Text('Next'),
+                ),
               ),
             ],
           ),

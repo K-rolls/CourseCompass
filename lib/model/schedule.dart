@@ -4,12 +4,14 @@ class Schedule {
   final String? id;
   final String name;
   final DateTime dateTime;
+  final bool? attended;
   String? summary;
 
   Schedule({
     this.id,
     required this.name,
     required this.dateTime,
+    this.attended = false,
     this.summary,
   });
 
@@ -20,6 +22,7 @@ class Schedule {
         dateTime,
       ),
       'summary': summary,
+      'attended': attended,
     };
   }
 
@@ -32,6 +35,7 @@ class Schedule {
         map['dateTime'].toDate().toString(),
       ),
       summary: map['summary'],
+      attended: map['attended'],
     );
   }
 }

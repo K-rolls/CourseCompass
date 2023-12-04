@@ -12,7 +12,6 @@ class GradesCard extends StatelessWidget {
   ///
   /// The `name` parameter is a string representing the name of the course.
   /// The `color` parameter is a color representing the color of the card.
-  // TODO: Update this to take in stream params
   const GradesCard({
     super.key,
     required this.name,
